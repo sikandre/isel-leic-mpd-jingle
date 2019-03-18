@@ -31,14 +31,12 @@
 package org.isel.jingle;
 
 import com.google.gson.Gson;
-import org.isel.jingle.dto.AlbumDto;
-import org.isel.jingle.dto.ArtistDto;
-import org.isel.jingle.dto.TrackDto;
+import org.isel.jingle.dto.*;
 import org.isel.jingle.util.req.Request;
 
 
 public class LastfmWebApi {
-    private static final String LASTFM_API_KEY = "*****************************";
+    private static final String LASTFM_API_KEY = "55394a24c02f82f0b62712b219374964";
     private static final String LASTFM_HOST = "http://ws.audioscrobbler.com/2.0/";
     private static final String LASTFM_SEARCH = LASTFM_HOST
                                                     + "?method=artist.search&format=json&artist=%s&page=%d&api_key="
@@ -64,8 +62,14 @@ public class LastfmWebApi {
     }
 
     public ArtistDto[] searchArtist(String name, int page) {
-        throw new UnsupportedOperationException();
+        String path = String.format(LASTFM_SEARCH,name, page);
+        Iterable<String> src = request.getLines(path);
+        String body = String.join("", src);
+        SearchDto dto = gson.fromJson(body, SearchDto.class);
+        ArtistDto[] artistDtos = dto.getResults().getArtistMatchDto().getArtist();
+        return artistDtos;
     }
+
     public AlbumDto[] getAlbums(String artistMbid, int page) {
         throw new UnsupportedOperationException();
     }
