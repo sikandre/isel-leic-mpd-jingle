@@ -107,7 +107,14 @@ public class LazyQueries {
     }
 
     public static <T extends Comparable<T>> Optional<T> max(Iterable<T> src) {
-        throw new UnsupportedOperationException();
+        Iterator<T> iter = src.iterator();
+        T res = iter.next();
+        while(iter.hasNext()) {
+            T curr = iter.next();
+            if(curr.compareTo(res) > 0)
+                res = curr;
+        }
+        return Optional.ofNullable(res);
     }
 
     public static <T> Iterable<T> from(T[] items) {
