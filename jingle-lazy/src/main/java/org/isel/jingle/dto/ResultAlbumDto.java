@@ -1,6 +1,4 @@
-package org.isel.jingle;
-
-import org.isel.jingle.dto.AlbumDto;
+package org.isel.jingle.dto;
 
 public class ResultAlbumDto {
     private final AlbumDto album;
