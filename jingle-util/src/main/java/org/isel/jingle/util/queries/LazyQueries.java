@@ -31,9 +31,11 @@
 package org.isel.jingle.util.queries;
 
 import org.isel.jingle.util.iterators.IteratorFilter;
+import org.isel.jingle.util.iterators.IteratorFrom;
 import org.isel.jingle.util.iterators.IteratorLimit;
 import org.isel.jingle.util.iterators.IteratorMap;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -51,7 +53,12 @@ public class LazyQueries {
     }
 
     public static <T> Iterable<T> skip(Iterable<T> src, int nr){
-        throw new UnsupportedOperationException();
+        return () -> {
+            Iterator<T> iter = src.iterator();
+            int count = nr;
+            while(count-- > 0 && iter.hasNext()) iter.next();
+            return iter;
+        };
     }
 
     public static <T> Iterable<T> limit(Iterable<T> src, int nr){
@@ -63,23 +70,40 @@ public class LazyQueries {
     }
 
     public static <T> Iterable<T> generate(Supplier<T> next){
-        throw new UnsupportedOperationException();
+        return () -> new Iterator<T>() {
+            public boolean hasNext() { return true; }
+            public T next() { return next.get(); }
+        };
     }
 
     public static <T> Iterable<T> iterate(T seed, Function<T, T> next){
-        throw new UnsupportedOperationException();
+        return () -> new Iterator<T>() {
+            T curr = seed;
+            public boolean hasNext() { return true; }
+            public T next() {
+                T tmp = curr;
+                curr = next.apply(tmp);
+                return tmp;
+            }
+        };
     }
 
     public static <T> int count(Iterable<T> src) {
-        throw new UnsupportedOperationException();
+        int count = 0;
+        for (T item : src) {
+            count++;
+        }
+        return count;
     }
 
     public static <T> Object[] toArray(Iterable<T> src) {
-        throw new UnsupportedOperationException();
+        LinkedList res = new LinkedList();
+        for(T item : src) res.add(item);
+        return res.toArray();
     }
 
     public static <T> Optional<T> first(Iterable<T> src) {
-        throw new UnsupportedOperationException();
+        return Optional.ofNullable(src.iterator().next());
     }
 
     public static <T extends Comparable<T>> Optional<T> max(Iterable<T> src) {
@@ -87,7 +111,7 @@ public class LazyQueries {
     }
 
     public static <T> Iterable<T> from(T[] items) {
-        throw new UnsupportedOperationException();
+        return () -> new IteratorFrom(items);
     }
 
     public static <T> Iterable<T> takeWhile(Iterable<T> src, Predicate<T> pred){
