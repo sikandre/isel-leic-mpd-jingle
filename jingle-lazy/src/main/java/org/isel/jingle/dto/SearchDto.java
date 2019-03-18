@@ -1,13 +1,22 @@
 package org.isel.jingle.dto;
 
 public class SearchDto {
-    private final ResultsDto results;
+    private ResultArtistDto results;
+    private ResultAlbumsDto topalbums;
 
-    public SearchDto(ResultsDto results) {
+    public SearchDto(ResultArtistDto results) {
         this.results = results;
     }
 
-    public ResultsDto getResults() {
+    public SearchDto(ResultAlbumsDto topalbuns) {
+        this.topalbums = topalbuns;
+    }
+
+    public ResultArtistDto getResults() {
         return results;
+    }
+
+    public ResultAlbumsDto getTopalbums() {
+        return topalbums;
     }
 }

@@ -32,6 +32,7 @@ package org.isel.jingle;
 
 import com.google.gson.Gson;
 import org.isel.jingle.dto.*;
+import org.isel.jingle.model.Track;
 import org.isel.jingle.util.req.Request;
 
 
@@ -62,18 +63,32 @@ public class LastfmWebApi {
     }
 
     public ArtistDto[] searchArtist(String name, int page) {
-        String path = String.format(LASTFM_SEARCH,name, page);
-        Iterable<String> src = request.getLines(path);
-        String body = String.join("", src);
+        String body = getBody(LASTFM_SEARCH, name, page);
         SearchDto dto = gson.fromJson(body, SearchDto.class);
         ArtistDto[] artistDtos = dto.getResults().getArtistMatchDto().getArtist();
         return artistDtos;
     }
 
     public AlbumDto[] getAlbums(String artistMbid, int page) {
-        throw new UnsupportedOperationException();
+        String body = getBody(LASTFM_GET_ALBUMS, artistMbid, page);
+        SearchDto dto = gson.fromJson(body, SearchDto.class);
+        AlbumDto[] albums = dto.getTopalbums().getAlbum();
+        return albums;
     }
+
     public TrackDto[] getAlbumInfo(String albumMbid){
-        throw new UnsupportedOperationException();
+        String path = String.format(LASTFM_GET_ALBUM_INFO, albumMbid);
+        Iterable<String> src = request.getLines(path);
+        String body = String.join("", src);
+        ResultAlbumDto dto = gson.fromJson(body, ResultAlbumDto.class);
+        TrackDto[] track = dto.getAlbum().getTracks().getTrack();
+
+        return track;
+    }
+
+    private String getBody(String host, String name, int page) {
+        String path = String.format(host, name, page);
+        Iterable<String> src = request.getLines(path);
+        return String.join("", src);
     }
 }

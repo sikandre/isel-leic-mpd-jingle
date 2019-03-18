@@ -1,9 +1,9 @@
 package org.isel.jingle.dto;
 
-public class ResultsDto {
+public class ResultArtistDto {
     private final ArtistMatchDto artistmatches;
 
-    public ResultsDto(ArtistMatchDto artistmatches) {
+    public ResultArtistDto(ArtistMatchDto artistmatches) {
         this.artistmatches = artistmatches;
     }
 
