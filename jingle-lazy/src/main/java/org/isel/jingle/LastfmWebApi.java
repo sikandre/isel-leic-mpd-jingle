@@ -31,9 +31,7 @@
 package org.isel.jingle;
 
 import com.google.gson.Gson;
-import org.isel.jingle.dto.AlbumDto;
-import org.isel.jingle.dto.ArtistDto;
-import org.isel.jingle.dto.TrackDto;
+import org.isel.jingle.dto.*;
 import org.isel.jingle.util.req.Request;
 
 
@@ -67,7 +65,8 @@ public class LastfmWebApi {
         String path = String.format(LASTFM_SEARCH,name,page);
         Iterable<String> src = request.getLines(path);
         String body = String.join("",src);
-
+        SearchDto searchDto =gson.fromJson(body,SearchDto.class);
+        ArtistDto [] artistDto = searchDto.getArtistMatchesDto().getArtistDto();
         return null;
     }
 
