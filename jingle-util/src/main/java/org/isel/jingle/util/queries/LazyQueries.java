@@ -31,6 +31,7 @@
 package org.isel.jingle.util.queries;
 
 import org.isel.jingle.util.iterators.IteratorFilter;
+import org.isel.jingle.util.iterators.IteratorFlatMap;
 import org.isel.jingle.util.iterators.IteratorLimit;
 import org.isel.jingle.util.iterators.IteratorMap;
 
@@ -103,13 +104,11 @@ public class LazyQueries {
     }
 
     public static <T> Optional<T> first(Iterable<T> src) {
-        //TODO check optional funcs
         Iterator<T> iter = src.iterator();
-        return iter.hasNext() ? (Optional<T>) iter.next() : null;
+        return iter.hasNext() ? Optional.ofNullable(iter.next()) : null;
     }
 
     public static <T extends Comparable<T>> Optional<T> max(Iterable<T> src) {
-        //TODO check optional funcs
         Iterator<T> iter = src.iterator();
         T res = iter.next();
         while(iter.hasNext()) {
@@ -121,19 +120,39 @@ public class LazyQueries {
     }
 
     public static <T> Iterable<T> from(T[] items) {
-        throw new UnsupportedOperationException();
+        return () -> new Iterator<T>() {
+            int curr;
+            public boolean hasNext() {
+                return(curr<items.length);
+            }
+            public T next() {
+                return items[curr++];
+            }
+        };
     }
 
     public static <T> Iterable<T> takeWhile(Iterable<T> src, Predicate<T> pred){
-        throw new UnsupportedOperationException();
+        return  () -> new Iterator<T>() {
+            Iterator<T> iter = src.iterator();
+            T elem;
+            public boolean hasNext() {
+                if(iter.hasNext()){
+                    elem = iter.next();
+                    return pred.test(elem);
+                }
+                return false;
+            }
+            public T next() { return elem;}
+        };
     }
     public static <T, R> Iterable<R> flatMap(Iterable<T> src, Function<T, Iterable<R>> mapper){
-        throw new UnsupportedOperationException();
+        return () -> new IteratorFlatMap(src,mapper);
     }
 
     public static <T> T last(Iterable<T> src) {
-        //TODO check if its correct
-        Iterator<T>iter = src.iterator();
-        return iter.hasNext() ? null : iter.next();
+        Iterator <T> iter = src.iterator();
+        T curr = iter.next();
+        while(iter.hasNext())curr = iter.next();
+        return curr;
     }
 }

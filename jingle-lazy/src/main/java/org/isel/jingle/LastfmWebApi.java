@@ -38,7 +38,7 @@ import org.isel.jingle.util.req.Request;
 
 
 public class LastfmWebApi {
-    private static final String LASTFM_API_KEY = "*****************************";
+    private static final String LASTFM_API_KEY = "55394a24c02f82f0b62712b219374964";
     private static final String LASTFM_HOST = "http://ws.audioscrobbler.com/2.0/";
     private static final String LASTFM_SEARCH = LASTFM_HOST
                                                     + "?method=artist.search&format=json&artist=%s&page=%d&api_key="
@@ -64,12 +64,19 @@ public class LastfmWebApi {
     }
 
     public ArtistDto[] searchArtist(String name, int page) {
-        throw new UnsupportedOperationException();
+        String path = String.format(LASTFM_SEARCH,name,page);
+        Iterable<String> src = request.getLines(path);
+        String body = String.join("",src);
+
+        return null;
     }
+
     public AlbumDto[] getAlbums(String artistMbid, int page) {
+        String path = String.format(LASTFM_GET_ALBUMS,artistMbid,page);
         throw new UnsupportedOperationException();
     }
     public TrackDto[] getAlbumInfo(String albumMbid){
+        String path = String.format(LASTFM_GET_ALBUM_INFO,albumMbid);
         throw new UnsupportedOperationException();
     }
 }
