@@ -34,22 +34,16 @@ import junit.framework.AssertionFailedError;
 import org.isel.jingle.util.queries.LazyQueries;
 import org.junit.Test;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Function;
 
 import static java.lang.System.out;
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertEquals;
-import static org.isel.jingle.util.queries.LazyQueries.count;
-import static org.isel.jingle.util.queries.LazyQueries.filter;
-import static org.isel.jingle.util.queries.LazyQueries.first;
-import static org.isel.jingle.util.queries.LazyQueries.generate;
-import static org.isel.jingle.util.queries.LazyQueries.iterate;
-import static org.isel.jingle.util.queries.LazyQueries.limit;
-import static org.isel.jingle.util.queries.LazyQueries.map;
-import static org.isel.jingle.util.queries.LazyQueries.max;
-import static org.isel.jingle.util.queries.LazyQueries.skip;
+import static org.isel.jingle.util.queries.LazyQueries.*;
 import static org.isel.jingle.util.queries.LazyQueries.toArray;
 import static org.junit.Assert.assertArrayEquals;
 
@@ -101,5 +95,15 @@ public class LazyQueriesTest {
             n -> n > 3));
         int val = first.orElseThrow(() ->{ throw new AssertionFailedError("Max returning NO value!"); });
         assertEquals(4, val);
+    }
+
+    @Test
+    public void testFlatMap() {
+        List<String> words = asList("super", "isel");
+
+        Iterable<Character> characters = flatMap(words, LazyQueries::from);
+        Object[] actual = toArray(characters);
+        Object[] expected = {'s','u','p','e','r','i','s','e','l'};
+        assertArrayEquals(expected, actual);
     }
 }

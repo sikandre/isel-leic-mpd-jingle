@@ -30,11 +30,15 @@
 
 package org.isel.jingle;
 
+import org.isel.jingle.dto.ArtistDto;
 import org.isel.jingle.model.Album;
 import org.isel.jingle.model.Artist;
 import org.isel.jingle.model.Track;
+import org.isel.jingle.util.queries.LazyQueries;
 import org.isel.jingle.util.req.BaseRequest;
 import org.isel.jingle.util.req.HttpRequest;
+
+import static org.isel.jingle.util.queries.LazyQueries.*;
 
 public class JingleService {
 
@@ -48,8 +52,15 @@ public class JingleService {
         this(new LastfmWebApi(new BaseRequest(HttpRequest::openStream)));
     }
 
+
     public Iterable<Artist> searchArtist(String name) {
-        throw new UnsupportedOperationException();
+        Iterable<Integer> pageNr = iterate(1, n -> n + 1);
+        Iterable<ArtistDto[]> map = map(pageNr, nr -> api.searchArtist(name, nr));
+        map = takeWhile(map, arr -> arr.length!=0);
+        Iterable<ArtistDto> dtos = flatMap(map, arr -> from(arr));
+        
+
+        return null;
     }
 
     private Iterable<Album> getAlbums(String artistMbid) {

@@ -30,21 +30,14 @@
 
 package org.isel.jingle.util.queries;
 
-import org.isel.jingle.util.iterators.IteratorFilter;
-import org.isel.jingle.util.iterators.IteratorFrom;
-import org.isel.jingle.util.iterators.IteratorLimit;
-import org.isel.jingle.util.iterators.IteratorMap;
+import org.isel.jingle.util.iterators.*;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 
 public class LazyQueries {
 
@@ -122,13 +115,34 @@ public class LazyQueries {
     }
 
     public static <T> Iterable<T> takeWhile(Iterable<T> src, Predicate<T> pred){
-        throw new UnsupportedOperationException();
+        return () -> new IteratorTakeWhile(src, pred);
     }
     public static <T, R> Iterable<R> flatMap(Iterable<T> src, Function<T, Iterable<R>> mapper){
-        throw new UnsupportedOperationException();
+        return () -> new IteratorFlatMap(src, mapper);
     }
 
     public static <T> T last(Iterable<T> src) {
-        throw new UnsupportedOperationException();
+        Iterator<T> iter = src.iterator();
+        T lastElem = null;
+        while(iter.hasNext()){
+            lastElem = iter.next();
+        }
+        return lastElem;
+    }
+
+    public static Iterable<Character> from(String s) {
+        final int[] idx = {0};
+        return () -> new Iterator<Character>() {
+
+            @Override
+            public boolean hasNext() {
+                return s.length()!=idx[0];
+            }
+
+            @Override
+            public Character next() {
+                return s.charAt(idx[0]++);
+            }
+        };
     }
 }
