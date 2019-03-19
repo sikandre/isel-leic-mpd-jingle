@@ -51,7 +51,12 @@ public class LazyQueries {
     }
 
     public static <T> Iterable<T> skip(Iterable<T> src, int nr){
-        throw new UnsupportedOperationException();
+        return () ->{
+            Iterator<T> iter = src.iterator();
+            int aux = nr;
+            while(aux-- > 0 && iter.hasNext()) iter.next();
+            return iter;
+        };
     }
 
     public static <T> Iterable<T> limit(Iterable<T> src, int nr){
@@ -63,27 +68,56 @@ public class LazyQueries {
     }
 
     public static <T> Iterable<T> generate(Supplier<T> next){
-        throw new UnsupportedOperationException();
+        return () -> new Iterator<T>() {
+            @Override
+            public boolean hasNext() {return true;}
+            @Override
+            public T next() {return next.get(); }
+        };
     }
 
     public static <T> Iterable<T> iterate(T seed, Function<T, T> next){
-        throw new UnsupportedOperationException();
+        return () -> new Iterator<T>() {
+            T curr = seed;
+            public boolean hasNext() {return true;}
+            public T next() {
+                T tmp = curr;
+                curr = next.apply(tmp);
+                return tmp;
+            }
+        };
     }
 
     public static <T> int count(Iterable<T> src) {
-        throw new UnsupportedOperationException();
+        int count = 0;
+        for (T item : src) {
+            count++;
+        }
+        return count;
     }
 
     public static <T> Object[] toArray(Iterable<T> src) {
-        throw new UnsupportedOperationException();
+        LinkedList res = new LinkedList();
+        for(T item : src) res.add(item);
+        return res.toArray();
     }
 
     public static <T> Optional<T> first(Iterable<T> src) {
-        throw new UnsupportedOperationException();
+        //TODO check optional funcs
+        Iterator<T> iter = src.iterator();
+        return iter.hasNext() ? (Optional<T>) iter.next() : null;
     }
 
     public static <T extends Comparable<T>> Optional<T> max(Iterable<T> src) {
-        throw new UnsupportedOperationException();
+        //TODO check optional funcs
+        Iterator<T> iter = src.iterator();
+        T res = iter.next();
+        while(iter.hasNext()) {
+            T curr = iter.next();
+            if(curr.compareTo(res) > 0)
+                res = curr;
+        }
+        return Optional.ofNullable(res);
     }
 
     public static <T> Iterable<T> from(T[] items) {
@@ -98,6 +132,8 @@ public class LazyQueries {
     }
 
     public static <T> T last(Iterable<T> src) {
-        throw new UnsupportedOperationException();
+        //TODO check if its correct
+        Iterator<T>iter = src.iterator();
+        return iter.hasNext() ? null : iter.next();
     }
 }
