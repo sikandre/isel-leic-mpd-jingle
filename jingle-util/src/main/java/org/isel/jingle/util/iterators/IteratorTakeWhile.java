@@ -16,16 +16,15 @@ public class IteratorTakeWhile<T> implements Iterator<T> {
 
     @Override
     public boolean hasNext() {
-        if(pred.test(elem)) {
-            return false;
+        if(src.hasNext()) {
+            elem = src.next();
+            return pred.test(elem);
         }
-        elem = src.next();
-        return true;
+        return false;
     }
 
     @Override
     public T next() {
-        if (!hasNext()) throw new NoSuchElementException();
         T aux = elem;
         elem = null;
         return aux;

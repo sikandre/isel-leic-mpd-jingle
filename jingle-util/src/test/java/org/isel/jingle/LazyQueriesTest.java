@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static java.lang.System.out;
 import static java.util.Arrays.asList;
@@ -104,6 +105,16 @@ public class LazyQueriesTest {
         Iterable<Character> characters = flatMap(words, LazyQueries::from);
         Object[] actual = toArray(characters);
         Object[] expected = {'s','u','p','e','r','i','s','e','l'};
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testTakeWhile() {
+        List<Integer> nrs = asList(1, 2, 3, 4, 5, 6, 7, 8);
+        Iterable<Integer> i = takeWhile(nrs, n -> n <= 5);
+
+        Object[] actual = toArray(i);
+        Object[] expected = {1, 2, 3, 4, 5};
         assertArrayEquals(expected, actual);
     }
 }

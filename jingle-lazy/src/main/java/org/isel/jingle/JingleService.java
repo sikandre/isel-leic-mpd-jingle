@@ -30,6 +30,7 @@
 
 package org.isel.jingle;
 
+import org.isel.jingle.dto.AlbumDto;
 import org.isel.jingle.dto.ArtistDto;
 import org.isel.jingle.model.Album;
 import org.isel.jingle.model.Artist;
@@ -57,14 +58,17 @@ public class JingleService {
         Iterable<Integer> pageNr = iterate(1, n -> n + 1);
         Iterable<ArtistDto[]> map = map(pageNr, nr -> api.searchArtist(name, nr));
         map = takeWhile(map, arr -> arr.length!=0);
-        Iterable<ArtistDto> dtos = flatMap(map, arr -> from(arr));
-        
-
-        return null;
+        Iterable<ArtistDto> dtos = flatMap(map, LazyQueries::from);
+        return map(dtos, this::createArtist);
     }
 
     private Iterable<Album> getAlbums(String artistMbid) {
-        throw new UnsupportedOperationException();
+        Iterable<Integer> pageNr = iterate(1, n -> n + 1);
+        Iterable<AlbumDto[]> map = map(pageNr, nr -> api.getAlbums(artistMbid, nr));
+        map = takeWhile(map, arr -> arr.length!=0);
+        Iterable<AlbumDto> dto = flatMap(map, LazyQueries::from);
+        return map(dto, this::createAlbuns);
+
     }
 
     private Iterable<Track> getAlbumTracks(String albumMbid) {
@@ -73,5 +77,29 @@ public class JingleService {
 
     private Iterable<Track> getTracks(String artistMbid) {
         throw new UnsupportedOperationException();
+    }
+
+
+    private Artist createArtist(ArtistDto dto) {
+        return new Artist(
+                dto.getName(),
+                dto.getListeners(),
+                dto.getMbid(),
+                dto.getUrl(),
+                dto.getImage()[0].getText(),
+                getAlbums(dto.getMbid()),
+                getTracks(dto.getMbid())
+        );
+    }
+
+    private Album createAlbuns(AlbumDto dto) {
+        return new Album(
+                dto.getName(),
+                dto.getPlaycount(),
+                dto.getMbid(),
+                dto.getUrl(),
+                dto.getImage()[0].getText(),
+                getTracks(dto.getMbid())
+        );
     }
 }
