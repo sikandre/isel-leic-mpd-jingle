@@ -47,6 +47,7 @@ import static junit.framework.Assert.assertEquals;
 import static org.isel.jingle.util.queries.LazyQueries.*;
 import static org.isel.jingle.util.queries.LazyQueries.toArray;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class LazyQueriesTest {
@@ -102,7 +103,7 @@ public class LazyQueriesTest {
     public void testFlatMap() {
         List<String> words = asList("super", "isel");
 
-        Iterable<Character> characters = flatMap(words, LazyQueries::from);
+        Iterable<Character> characters = flatMap(words, LazyQueries::toFlat);
         Object[] actual = toArray(characters);
         Object[] expected = {'s','u','p','e','r','i','s','e','l'};
         assertArrayEquals(expected, actual);
@@ -116,5 +117,22 @@ public class LazyQueriesTest {
         Object[] actual = toArray(i);
         Object[] expected = {1, 2, 3, 4, 5};
         assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testFrom() {
+        String[] words ={"super", "isel"};
+        Iterable<String> from = from(words);
+        Object[] actual = toArray(from);
+        assertArrayEquals(words, actual);
+    }
+
+    @Test
+    public void testFirst() {
+        List<Integer> nrs = asList(2, 3, 4, 5, 6, 7, 8);
+        Optional<Integer> first = first(nrs);
+
+        assertTrue(first.isPresent());
+        assertEquals(2, 2);
     }
 }

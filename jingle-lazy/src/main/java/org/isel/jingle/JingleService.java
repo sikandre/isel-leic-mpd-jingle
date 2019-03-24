@@ -32,12 +32,15 @@ package org.isel.jingle;
 
 import org.isel.jingle.dto.AlbumDto;
 import org.isel.jingle.dto.ArtistDto;
+import org.isel.jingle.dto.TrackDto;
 import org.isel.jingle.model.Album;
 import org.isel.jingle.model.Artist;
 import org.isel.jingle.model.Track;
 import org.isel.jingle.util.queries.LazyQueries;
 import org.isel.jingle.util.req.BaseRequest;
 import org.isel.jingle.util.req.HttpRequest;
+
+import java.util.Iterator;
 
 import static org.isel.jingle.util.queries.LazyQueries.*;
 
@@ -62,23 +65,38 @@ public class JingleService {
         return map(dtos, this::createArtist);
     }
 
-    private Iterable<Album> getAlbums(String artistMbid) {
+    public Iterable<Album> getAlbums(String artistMbid) {
         Iterable<Integer> pageNr = iterate(1, n -> n + 1);
         Iterable<AlbumDto[]> map = map(pageNr, nr -> api.getAlbums(artistMbid, nr));
         map = takeWhile(map, arr -> arr.length!=0);
-        Iterable<AlbumDto> dto = flatMap(map, LazyQueries::from);
+        Iterable<AlbumDto> dto = flatMap(map, items -> LazyQueries.from(items));
         return map(dto, this::createAlbuns);
 
     }
 
-    private Iterable<Track> getAlbumTracks(String albumMbid) {
-        throw new UnsupportedOperationException();
+    public Iterable<Track> getAlbumTracks(String albumMbid) {
+        Iterable<TrackDto> from = from(api.getAlbumInfo(albumMbid));
+        return map(from, this::createTrack);
     }
 
-    private Iterable<Track> getTracks(String artistMbid) {
-        throw new UnsupportedOperationException();
+    public Iterable<Track> getTracks(String artistMbid) {
+        Iterable<String> id = iterate("", s -> getAlbums(artistMbid).iterator().next().getMbid());
+        
     }
 
+    private Iterable<Track> toIterable(Iterable<Track> t) {
+        return () -> new Iterator<Track>() {
+            @Override
+            public boolean hasNext() {
+                return t.iterator().hasNext();
+            }
+
+            @Override
+            public Track next() {
+                return t.iterator().next();
+            }
+        };
+    }
 
     private Artist createArtist(ArtistDto dto) {
         return new Artist(
@@ -99,7 +117,14 @@ public class JingleService {
                 dto.getMbid(),
                 dto.getUrl(),
                 dto.getImage()[0].getText(),
-                getTracks(dto.getMbid())
+                getAlbumTracks(dto.getMbid())
         );
+    }
+
+    private Track createTrack(TrackDto dto) {
+        return new Track(
+                dto.getName(),
+                dto.getUrl(),
+                dto.getDuration());
     }
 }

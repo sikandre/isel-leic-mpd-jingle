@@ -14,17 +14,11 @@ public class IteratorFrom<T> implements Iterator<T> {
 
     @Override
     public boolean hasNext() {
-        if(src.length > idx){
-            current = src[idx++];
-            return true;
-        }
-        return false;
+        return idx < src.length;
     }
 
     @Override
     public T next() {
-        T aux = current;
-        current = null;
-        return aux;
+        return src[idx++];
     }
 }

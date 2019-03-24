@@ -96,7 +96,8 @@ public class LazyQueries {
     }
 
     public static <T> Optional<T> first(Iterable<T> src) {
-        return Optional.ofNullable(src.iterator().next());
+        Optional<T> next = Optional.ofNullable(src.iterator().next());
+        return next;
     }
 
     public static <T extends Comparable<T>> Optional<T> max(Iterable<T> src) {
@@ -130,7 +131,7 @@ public class LazyQueries {
         return lastElem;
     }
 
-    public static Iterable<Character> from(String s) {
+    public static Iterable<Character> toFlat(String s) {
         final int[] idx = {0};
         return () -> new Iterator<Character>() {
 

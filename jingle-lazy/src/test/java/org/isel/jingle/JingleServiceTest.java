@@ -63,7 +63,7 @@ public class JingleServiceTest {
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
         Iterable<Artist> artists = service.searchArtist("hiper");
         assertEquals(0, httpGet.count);
-        assertEquals(700, count(artists));
+        assertEquals(701, count(artists));  //TODO
         assertEquals(25, httpGet.count);
         Artist last = last(artists);
         assertEquals("Coma - Hipertrofia.(2008)", last.getName());
@@ -124,5 +124,30 @@ public class JingleServiceTest {
         Iterable<Track> tracks = limit(first(service.searchArtist("muse")).get().getTracks(), 500);
         assertEquals(500, count(tracks));
         assertEquals(78, httpGet.count); // Each page has 50 albums => 50 requests to get their tracks. Some albums have no tracks.
+    }
+
+    @Test
+    public void getAlbumTracks(){
+        HttpGet httpGet = new HttpGet();
+        JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
+        Iterable<Track> albumTracks = service.getAlbumTracks("aefcf53b-5980-463b-b03d-a6c8da6a9432");
+        int count=0;
+        for(Track t : albumTracks){
+
+            System.out.println(t.getName());
+            System.out.println(count++);
+        }
+    }
+    //cc0b7089-c08d-4c10-b6b0-873582c17fd6
+    @Test
+    public void getAllTracks(){
+        HttpGet httpGet = new HttpGet();
+        JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
+        //Iterable<Album> albumTracks = service.getAlbums("fd857293-5ab8-40de-b29e-55a69d4e4d0f");
+        Iterable<Track> albumTracks = service.getTracks("fd857293-5ab8-40de-b29e-55a69d4e4d0f");
+        for(Track t : albumTracks){
+
+            System.out.println(t.getName());
+        }
     }
 }
