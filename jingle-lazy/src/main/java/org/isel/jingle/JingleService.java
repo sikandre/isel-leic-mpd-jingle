@@ -71,7 +71,6 @@ public class JingleService {
         map = takeWhile(map, arr -> arr.length!=0);
         Iterable<AlbumDto> dto = flatMap(map, items -> LazyQueries.from(items));
         return map(dto, this::createAlbuns);
-
     }
 
     public Iterable<Track> getAlbumTracks(String albumMbid) {
@@ -80,8 +79,18 @@ public class JingleService {
     }
 
     public Iterable<Track> getTracks(String artistMbid) {
-        Iterable<String> id = iterate("", s -> getAlbums(artistMbid).iterator().next().getMbid());
-        
+        //aefcf53b-5980-463b-b03d-a6c8da6a9432
+        Iterable<String> id = map(getAlbums(artistMbid), s -> s.getMbid());
+        //working not filtering null
+        //Iterable<String> id = map(getAlbums(artistMbid), s -> s.getMbid());
+
+        //Iterable<String> id = map(getAlbums(artistMbid), s -> s.getMbid());
+        Iterable<Iterable<Track>> tracks = map(id, i -> {
+            //System.out.println(i);
+            return getAlbumTracks(i);
+        });
+        return flatMap(tracks, it -> it);
+
     }
 
     private Iterable<Track> toIterable(Iterable<Track> t) {

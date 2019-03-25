@@ -31,7 +31,7 @@ public class IteratorFlatMap<T, R> implements Iterator<R> {
 
     @Override
     public R next() {
-        if (!hasNext()) throw new NoSuchElementException();
+        if (current==null && !hasNext()) throw new NoSuchElementException();
         R aux = current;
         current = null;
         return aux;
