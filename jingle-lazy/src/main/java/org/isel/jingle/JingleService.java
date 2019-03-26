@@ -69,42 +69,20 @@ public class JingleService {
         Iterable<Integer> pageNr = iterate(1, n -> n + 1);
         Iterable<AlbumDto[]> map = map(pageNr, nr -> api.getAlbums(artistMbid, nr));
         map = takeWhile(map, arr -> arr.length!=0);
-        Iterable<AlbumDto> dto = flatMap(map, items -> LazyQueries.from(items));
+        Iterable<AlbumDto> dto = filter(flatMap(map, LazyQueries::from),s->s.getMbid()!=null);
         return map(dto, this::createAlbuns);
     }
 
-    public Iterable<Track> getAlbumTracks(String albumMbid) {
+    private Iterable<Track> getAlbumTracks(String albumMbid) {
         Iterable<TrackDto> from = from(api.getAlbumInfo(albumMbid));
         return map(from, this::createTrack);
     }
 
-    public Iterable<Track> getTracks(String artistMbid) {
-        //aefcf53b-5980-463b-b03d-a6c8da6a9432
-        Iterable<String> id = map(getAlbums(artistMbid), s -> s.getMbid());
-        //working not filtering null
-        //Iterable<String> id = map(getAlbums(artistMbid), s -> s.getMbid());
-
-        //Iterable<String> id = map(getAlbums(artistMbid), s -> s.getMbid());
-        Iterable<Iterable<Track>> tracks = map(id, i -> {
-            //System.out.println(i);
-            return getAlbumTracks(i);
-        });
+    private Iterable<Track> getTracks(String artistMbid) {
+        Iterable<String> id = map(getAlbums(artistMbid), Album::getMbid);
+        Iterable<Iterable<Track>> tracks = map(id, this::getAlbumTracks);
+        tracks = takeWhile(tracks, arr -> arr.iterator().hasNext());
         return flatMap(tracks, it -> it);
-
-    }
-
-    private Iterable<Track> toIterable(Iterable<Track> t) {
-        return () -> new Iterator<Track>() {
-            @Override
-            public boolean hasNext() {
-                return t.iterator().hasNext();
-            }
-
-            @Override
-            public Track next() {
-                return t.iterator().next();
-            }
-        };
     }
 
     private Artist createArtist(ArtistDto dto) {

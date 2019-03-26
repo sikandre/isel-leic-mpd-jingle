@@ -76,7 +76,6 @@ public class LastfmWebApi {
     }
 
     public TrackDto[] getAlbumInfo(String albumMbid){
-        System.out.println(albumMbid);
         String path = String.format(LASTFM_GET_ALBUM_INFO, albumMbid);
         Iterable<String> src = request.getLines(path);
         String body = String.join("", src);
