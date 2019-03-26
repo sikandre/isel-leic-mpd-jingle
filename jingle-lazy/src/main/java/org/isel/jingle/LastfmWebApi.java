@@ -34,7 +34,6 @@ import com.google.gson.Gson;
 import org.isel.jingle.dto.*;
 import org.isel.jingle.util.req.Request;
 
-
 public class LastfmWebApi {
     private static final String LASTFM_API_KEY = "55394a24c02f82f0b62712b219374964";
     private static final String LASTFM_HOST = "http://ws.audioscrobbler.com/2.0/";

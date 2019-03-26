@@ -32,9 +32,7 @@ package org.isel.jingle.util.queries;
 
 import org.isel.jingle.util.iterators.*;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -143,6 +141,30 @@ public class LazyQueries {
             @Override
             public Character next() {
                 return s.charAt(idx[0]++);
+            }
+        };
+    }
+
+    public static  <T> Iterable<T> cache(Iterable<T> src){
+        ArrayList<T> list = new ArrayList<>();
+        final int[] count = {0};
+        return () -> new Iterator<T>() {
+            private T current = null;
+            private Iterator<T> iter = src.iterator();
+            public boolean hasNext() {
+                if(src.iterator().hasNext()){
+                    current = iter.next();
+                    list.add(current);
+                    return true;
+                }
+                if(list.size() != count[0]){
+                    current = list.get(count[0]++);
+                    return true;
+                }
+                return false;
+            }
+            public T next() {
+                return list.get(count[0]++);
             }
         };
     }

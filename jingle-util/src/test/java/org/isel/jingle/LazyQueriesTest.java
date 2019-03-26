@@ -135,4 +135,14 @@ public class LazyQueriesTest {
         assertTrue(first.isPresent());
         assertEquals(2, 2);
     }
+
+    @Test
+    public void testCache(){
+        Random r = new Random();
+        Iterable<Integer> nrs = generate(() -> r.nextInt(100));
+        nrs = cache(nrs);
+        Object[] expected = toArray(limit(nrs, 10));
+        Object[] actual = toArray(limit(nrs, 10));
+        assertArrayEquals(expected, actual);
+    }
 }
