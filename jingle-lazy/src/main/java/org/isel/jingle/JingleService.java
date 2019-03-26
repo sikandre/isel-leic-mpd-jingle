@@ -86,25 +86,28 @@ public class JingleService {
     }
 
     private Artist createArtist(ArtistDto dto) {
+        Iterable<Album> al = () -> getAlbums(dto.getMbid()).iterator();
+        Iterable<Track> tra = () -> getTracks(dto.getMbid()).iterator();
         return new Artist(
                 dto.getName(),
                 dto.getListeners(),
                 dto.getMbid(),
                 dto.getUrl(),
                 dto.getImage()[0].getText(),
-                getAlbums(dto.getMbid()),
-                getTracks(dto.getMbid())
+                al,
+                tra
         );
     }
 
     private Album createAlbuns(AlbumDto dto) {
+        Iterable<Track> tra = () -> getAlbumTracks(dto.getMbid()).iterator();
         return new Album(
                 dto.getName(),
                 dto.getPlaycount(),
                 dto.getMbid(),
                 dto.getUrl(),
                 dto.getImage()[0].getText(),
-                getAlbumTracks(dto.getMbid())
+                tra
         );
     }
 

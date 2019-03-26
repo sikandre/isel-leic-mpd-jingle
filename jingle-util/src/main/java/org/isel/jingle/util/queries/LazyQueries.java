@@ -94,7 +94,7 @@ public class LazyQueries {
     }
 
     public static <T> Optional<T> first(Iterable<T> src) {
-        Optional<T> next = Optional.ofNullable(src.iterator().next());
+        Optional<T> next = Optional.of(src.iterator().next());
         return next;
     }
 
@@ -147,24 +147,23 @@ public class LazyQueries {
 
     public static  <T> Iterable<T> cache(Iterable<T> src){
         ArrayList<T> list = new ArrayList<>();
-        final int[] count = {0};
         return () -> new Iterator<T>() {
             private T current = null;
-            private Iterator<T> iter = src.iterator();
+            private int count = 0;
+
             public boolean hasNext() {
-                if(src.iterator().hasNext()){
-                    current = iter.next();
-                    list.add(current);
-                    return true;
-                }
-                if(list.size() != count[0]){
-                    current = list.get(count[0]++);
-                    return true;
-                }
-                return false;
+               return src.iterator().hasNext();
             }
             public T next() {
-                return list.get(count[0]++);
+                if(count<list.size()){
+                    return list.get(count++);
+                }
+                else{
+                    T aux = src.iterator().next();
+                    list.add(aux);
+                    count++;
+                    return aux;
+                }
             }
         };
     }
