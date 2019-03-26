@@ -91,6 +91,7 @@ public class JingleServiceTest {
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
         Artist muse = first(service.searchArtist("muse")).get();
         Iterable<Album> albums = limit(muse.getAlbums(), 111);
+
         assertEquals(111, count(albums));
         assertEquals(4, httpGet.count); // 1 for artist + 3 pages of albums each with 50 albums
     }
@@ -100,7 +101,6 @@ public class JingleServiceTest {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
         Album blackHoles = first(first(service.searchArtist("muse")).get().getAlbums()).get();
-        //TODO Not passing
         assertEquals(2, httpGet.count); // 1 for artist + 1 page of albums
         assertEquals("Black Holes and Revelations", blackHoles.getName());
         Track song = first(skip(blackHoles.getTracks(), 1)).get();
