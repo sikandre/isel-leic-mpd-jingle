@@ -41,6 +41,7 @@ import org.isel.jingle.util.req.BaseRequest;
 import org.isel.jingle.util.req.HttpRequest;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 import static org.isel.jingle.util.queries.LazyQueries.*;
 
@@ -81,7 +82,7 @@ public class JingleService {
 
     private Iterable<Track> getTracks(String artistMbid) {
         Iterable<String> id = map(getAlbums(artistMbid), Album::getMbid);
-        id = filter(id, f -> f!=null);
+        id = filter(id, Objects::nonNull);
         Iterable<Iterable<Track>> tracks = map(id, this::getAlbumTracks);
         return flatMap(tracks, it -> it);
     }

@@ -110,7 +110,7 @@ public class LazyQueries {
     }
 
     public static <T> Iterable<T> from(T[] items) {
-        return () -> new IteratorFrom(items);
+        return () -> new IteratorFrom<>(items);
     }
 
     public static <T> Iterable<T> takeWhile(Iterable<T> src, Predicate<T> pred){
@@ -129,7 +129,7 @@ public class LazyQueries {
         return lastElem;
     }
 
-    public static Iterable<Character> toFlat(String s) {
+    public static Iterable<Character> toCharArray(String s) {
         final int[] idx = {0};
         return () -> new Iterator<Character>() {
 

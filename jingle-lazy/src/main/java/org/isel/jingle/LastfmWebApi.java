@@ -79,9 +79,8 @@ public class LastfmWebApi {
         Iterable<String> src = request.getLines(path);
         String body = String.join("", src);
         ResultAlbumDto dto = gson.fromJson(body, ResultAlbumDto.class);
-        if(dto.getAlbum()==null) return new TrackDto[0];
-        TrackDto[] track = dto.getAlbum().getTracks().getTrack();
-        return track;
+
+        return dto.getAlbum().getTracks().getTrack();
     }
 
     private String getBody(String host, String name, int page) {

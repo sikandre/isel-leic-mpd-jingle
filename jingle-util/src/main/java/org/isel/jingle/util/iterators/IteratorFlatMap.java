@@ -23,8 +23,13 @@ public class IteratorFlatMap<T, R> implements Iterator<R> {
         }
         if(src.hasNext()){
             subSrc = mapper.apply(src.next()).iterator();
-            current = subSrc.next();
-            return true;
+            if(subSrc.hasNext()) {
+                current = subSrc.next();
+                return true;
+            }
+            else {
+                return true;
+            }
         }
         return false;
     }

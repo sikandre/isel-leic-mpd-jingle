@@ -34,12 +34,9 @@ import junit.framework.AssertionFailedError;
 import org.isel.jingle.util.queries.LazyQueries;
 import org.junit.Test;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static java.lang.System.out;
 import static java.util.Arrays.asList;
@@ -101,9 +98,9 @@ public class LazyQueriesTest {
 
     @Test
     public void testFlatMap() {
-        List<String> words = asList("super", "isel");
+        List<String> words = asList("super","", "isel");
 
-        Iterable<Character> characters = flatMap(words, LazyQueries::toFlat);
+        Iterable<Character> characters = flatMap(words, LazyQueries::toCharArray);
         Object[] actual = toArray(characters);
         Object[] expected = {'s','u','p','e','r','i','s','e','l'};
         assertArrayEquals(expected, actual);
@@ -145,4 +142,20 @@ public class LazyQueriesTest {
         Object[] actual = toArray(limit(nrs, 10));
         assertArrayEquals(expected, actual);
     }
+
+    @Test
+    public void testFromArray(){
+        Object[] expected = new Object[0];
+        Iterable<Object> objects = from(expected);
+        Object[] actual = toArray(objects);
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testFlatMap2() {
+        List<String> words = asList("fgfsg", "", "kgh");
+        Iterable<Character> characters = flatMap(words, LazyQueries::toCharArray);
+
+    }
+
 }
