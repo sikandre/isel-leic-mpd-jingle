@@ -28,27 +28,19 @@
  *
  */
 
-package org.isel.jingle.util.req;
+package org.isel.jingle.util;
 
-import org.isel.jingle.util.iterators.IteratorInputStream;
-
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.net.URL;
 
-public class BaseRequest implements Request {
+public class HttpRequest{
 
-    private final Function<String, InputStream> openStream;
-
-    public BaseRequest(Function<String, InputStream> openStream) {
-        this.openStream = openStream;
-    }
-
-    public final Iterable<String> getLines(String path) {
-
-        return () -> {
-            Supplier<InputStream> in = () -> openStream.apply(path);
-            return new IteratorInputStream(in);
-        };
+    public static InputStream openStream(String path) {
+        try {
+            return new URL(path).openStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

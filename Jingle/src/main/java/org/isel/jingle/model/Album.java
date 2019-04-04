@@ -28,11 +28,46 @@
  *
  */
 
-package org.isel.jingle.util.req;
+package org.isel.jingle.model;
 
-import java.util.List;
+public class Album {
+    private final String name;
+    private final int playcount;
+    private final String mbid;
+    private final String url;
+    private final String image;
+    private final Iterable<Track> tracks;
 
-public interface Request {
+    public Album(String name, int playcount, String mbid, String url, String image, Iterable<Track> tracks) {
+        this.name = name;
+        this.playcount = playcount;
+        this.mbid = mbid;
+        this.url = url;
+        this.image = image;
+        this.tracks = tracks;
+    }
 
-    public Iterable<String> getLines(String path);
+    public String getName() {
+        return name;
+    }
+
+    public int getPlaycount() {
+        return playcount;
+    }
+
+    public String getMbid() {
+        return mbid;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public Iterable<Track> getTracks() {
+        return tracks;
+    }
 }

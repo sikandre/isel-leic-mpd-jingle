@@ -28,19 +28,46 @@
  *
  */
 
-package org.isel.jingle.util.req;
+package org.isel.jingle.dto;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+public class AlbumDto {
+    private final String name;
+    private final int playcount;
+    private final String mbid;
+    private final String url;
+    private final ImageDto[] image;
+    private final TracksDto tracks;
 
-public class HttpRequest{
+    public AlbumDto(String name, int playcount, String mbid, String url, ImageDto[] image, TracksDto tracks) {
+        this.name = name;
+        this.playcount = playcount;
+        this.mbid = mbid;
+        this.url = url;
+        this.image = image;
+        this.tracks = tracks;
+    }
 
-    public static InputStream openStream(String path) {
-        try {
-            return new URL(path).openStream();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public String getName() {
+        return name;
+    }
+
+    public int getPlaycount() {
+        return playcount;
+    }
+
+    public String getMbid() {
+        return mbid;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public ImageDto[] getImage() {
+        return image;
+    }
+
+    public TracksDto getTracks() {
+        return tracks;
     }
 }

@@ -155,7 +155,6 @@ public class LazyQueriesTest {
     public void testFlatMap2() {
         List<String> words = asList("fgfsg", "", "kgh");
         Iterable<Character> characters = flatMap(words, LazyQueries::toCharArray);
-
     }
 
 }
