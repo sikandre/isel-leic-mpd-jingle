@@ -30,20 +30,19 @@
 
 package org.isel.jingle.util.queries;
 
+<<<<<<< HEAD
 import org.isel.jingle.util.iterators.IteratorFilter;
 import org.isel.jingle.util.iterators.IteratorFlatMap;
 import org.isel.jingle.util.iterators.IteratorLimit;
 import org.isel.jingle.util.iterators.IteratorMap;
+=======
+import org.isel.jingle.util.iterators.*;
+>>>>>>> master
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 
 public class LazyQueries {
 
@@ -52,10 +51,17 @@ public class LazyQueries {
     }
 
     public static <T> Iterable<T> skip(Iterable<T> src, int nr){
+<<<<<<< HEAD
         return () ->{
             Iterator<T> iter = src.iterator();
             int aux = nr;
             while(aux-- > 0 && iter.hasNext()) iter.next();
+=======
+        return () -> {
+            Iterator<T> iter = src.iterator();
+            int count = nr;
+            while(count-- > 0 && iter.hasNext()) iter.next();
+>>>>>>> master
             return iter;
         };
     }
@@ -70,17 +76,26 @@ public class LazyQueries {
 
     public static <T> Iterable<T> generate(Supplier<T> next){
         return () -> new Iterator<T>() {
+<<<<<<< HEAD
             @Override
             public boolean hasNext() {return true;}
             @Override
             public T next() {return next.get(); }
+=======
+            public boolean hasNext() { return true; }
+            public T next() { return next.get(); }
+>>>>>>> master
         };
     }
 
     public static <T> Iterable<T> iterate(T seed, Function<T, T> next){
         return () -> new Iterator<T>() {
             T curr = seed;
+<<<<<<< HEAD
             public boolean hasNext() {return true;}
+=======
+            public boolean hasNext() { return true; }
+>>>>>>> master
             public T next() {
                 T tmp = curr;
                 curr = next.apply(tmp);
@@ -104,8 +119,13 @@ public class LazyQueries {
     }
 
     public static <T> Optional<T> first(Iterable<T> src) {
+<<<<<<< HEAD
         Iterator<T> iter = src.iterator();
         return iter.hasNext() ? Optional.ofNullable(iter.next()) : null;
+=======
+        Optional<T> next = Optional.of(src.iterator().next());
+        return next;
+>>>>>>> master
     }
 
     public static <T extends Comparable<T>> Optional<T> max(Iterable<T> src) {
@@ -120,6 +140,7 @@ public class LazyQueries {
     }
 
     public static <T> Iterable<T> from(T[] items) {
+<<<<<<< HEAD
         return () -> new Iterator<T>() {
             int curr;
             public boolean hasNext() {
@@ -154,5 +175,63 @@ public class LazyQueries {
         T curr = iter.next();
         while(iter.hasNext())curr = iter.next();
         return curr;
+=======
+        return () -> new IteratorFrom<>(items);
+    }
+
+    public static <T> Iterable<T> takeWhile(Iterable<T> src, Predicate<T> pred){
+        return () -> new IteratorTakeWhile(src, pred);
+    }
+    public static <T, R> Iterable<R> flatMap(Iterable<T> src, Function<T, Iterable<R>> mapper){
+        return () -> new IteratorFlatMap(src, mapper);
+    }
+
+    public static <T> T last(Iterable<T> src) {
+        Iterator<T> iter = src.iterator();
+        T lastElem = null;
+        while(iter.hasNext()){
+            lastElem = iter.next();
+        }
+        return lastElem;
+    }
+
+    public static Iterable<Character> toCharArray(String s) {
+        final int[] idx = {0};
+        return () -> new Iterator<Character>() {
+
+            @Override
+            public boolean hasNext() {
+                return s.length()!=idx[0];
+            }
+
+            @Override
+            public Character next() {
+                return s.charAt(idx[0]++);
+            }
+        };
+    }
+
+    public static  <T> Iterable<T> cache(Iterable<T> src){
+        ArrayList<T> list = new ArrayList<>();
+        return () -> new Iterator<T>() {
+            private T current = null;
+            private int count = 0;
+
+            public boolean hasNext() {
+               return src.iterator().hasNext();
+            }
+            public T next() {
+                if(count<list.size()){
+                    return list.get(count++);
+                }
+                else{
+                    T aux = src.iterator().next();
+                    list.add(aux);
+                    count++;
+                    return aux;
+                }
+            }
+        };
+>>>>>>> master
     }
 }

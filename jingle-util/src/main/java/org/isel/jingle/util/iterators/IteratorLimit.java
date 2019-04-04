@@ -33,12 +33,19 @@ package org.isel.jingle.util.iterators;
 import java.util.Iterator;
 
 public class IteratorLimit<T> implements Iterator<T> {
+<<<<<<< HEAD
 
 
     final Iterator<T>iter;
     final int limit;
     private int count;
     
+=======
+    private final Iterator<T> iter;
+    private final int limit;
+    private int count;
+
+>>>>>>> master
     public IteratorLimit(Iterable<T> src, int limit) {
         this.iter = src.iterator();
         this.limit = limit;
@@ -47,7 +54,11 @@ public class IteratorLimit<T> implements Iterator<T> {
 
     @Override
     public boolean hasNext() {
+<<<<<<< HEAD
         if(count<limit)
+=======
+        if(count < limit)
+>>>>>>> master
             return iter.hasNext();
         return false;
     }

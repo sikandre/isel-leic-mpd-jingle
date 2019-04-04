@@ -34,7 +34,6 @@ import com.google.gson.Gson;
 import org.isel.jingle.dto.*;
 import org.isel.jingle.util.req.Request;
 
-
 public class LastfmWebApi {
     private static final String LASTFM_API_KEY = "55394a24c02f82f0b62712b219374964";
     private static final String LASTFM_HOST = "http://ws.audioscrobbler.com/2.0/";
@@ -62,6 +61,7 @@ public class LastfmWebApi {
     }
 
     public ArtistDto[] searchArtist(String name, int page) {
+<<<<<<< HEAD
         String path = String.format(LASTFM_SEARCH,name,page);
         Iterable<String> src = request.getLines(path);
         String body = String.join("",src);
@@ -73,9 +73,38 @@ public class LastfmWebApi {
     public AlbumDto[] getAlbums(String artistMbid, int page) {
         String path = String.format(LASTFM_GET_ALBUMS,artistMbid,page);
         throw new UnsupportedOperationException();
+=======
+        String body = getBody(LASTFM_SEARCH, name, page);
+        SearchDto dto = gson.fromJson(body, SearchDto.class);
+        ArtistDto[] artistDtos = dto.getResults().getArtistMatchDto().getArtist();
+        return artistDtos;
     }
+
+    public AlbumDto[] getAlbums(String artistMbid, int page) {
+        String body = getBody(LASTFM_GET_ALBUMS, artistMbid, page);
+        SearchDto dto = gson.fromJson(body, SearchDto.class);
+        AlbumDto[] albums = dto.getTopalbums().getAlbum();
+        return albums;
+>>>>>>> master
+    }
+
     public TrackDto[] getAlbumInfo(String albumMbid){
+<<<<<<< HEAD
         String path = String.format(LASTFM_GET_ALBUM_INFO,albumMbid);
         throw new UnsupportedOperationException();
+=======
+        String path = String.format(LASTFM_GET_ALBUM_INFO, albumMbid);
+        Iterable<String> src = request.getLines(path);
+        String body = String.join("", src);
+        ResultAlbumDto dto = gson.fromJson(body, ResultAlbumDto.class);
+
+        return dto.getAlbum().getTracks().getTrack();
+    }
+
+    private String getBody(String host, String name, int page) {
+        String path = String.format(host, name, page);
+        Iterable<String> src = request.getLines(path);
+        return String.join("", src);
+>>>>>>> master
     }
 }

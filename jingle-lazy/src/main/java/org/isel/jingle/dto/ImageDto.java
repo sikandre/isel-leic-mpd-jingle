@@ -30,5 +30,22 @@
 
 package org.isel.jingle.dto;
 
+import com.google.gson.annotations.SerializedName;
+
 public class ImageDto {
+    private final String size;
+    @SerializedName("#text") final String text;
+
+    public ImageDto(String size, String text) {
+        this.size = size;
+        this.text = text;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public String getText() {
+        return text;
+    }
 }

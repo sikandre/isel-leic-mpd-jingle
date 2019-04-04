@@ -30,11 +30,20 @@
 
 package org.isel.jingle;
 
+import org.isel.jingle.dto.AlbumDto;
+import org.isel.jingle.dto.ArtistDto;
+import org.isel.jingle.dto.TrackDto;
 import org.isel.jingle.model.Album;
 import org.isel.jingle.model.Artist;
 import org.isel.jingle.model.Track;
+import org.isel.jingle.util.queries.LazyQueries;
 import org.isel.jingle.util.req.BaseRequest;
 import org.isel.jingle.util.req.HttpRequest;
+
+import java.util.Iterator;
+import java.util.Objects;
+
+import static org.isel.jingle.util.queries.LazyQueries.*;
 
 public class JingleService {
 
@@ -48,19 +57,66 @@ public class JingleService {
         this(new LastfmWebApi(new BaseRequest(HttpRequest::openStream)));
     }
 
+
     public Iterable<Artist> searchArtist(String name) {
-        throw new UnsupportedOperationException();
+        Iterable<Integer> pageNr = iterate(1, n -> n + 1);
+        Iterable<ArtistDto[]> map = map(pageNr, nr -> api.searchArtist(name, nr));
+        map = takeWhile(map, arr -> arr.length!=0);
+        Iterable<ArtistDto> dtos = flatMap(map, LazyQueries::from);
+        return map(dtos, this::createArtist);
     }
 
-    private Iterable<Album> getAlbums(String artistMbid) {
-        throw new UnsupportedOperationException();
+    public Iterable<Album> getAlbums(String artistMbid) {
+        Iterable<Integer> pageNr = iterate(1, n -> n + 1);
+        Iterable<AlbumDto[]> map = map(pageNr, nr -> api.getAlbums(artistMbid, nr));
+        map = takeWhile(map, arr -> arr.length!=0);
+        Iterable<AlbumDto> dto = flatMap(map, LazyQueries::from);
+        return map(dto, this::createAlbuns);
+
     }
 
     private Iterable<Track> getAlbumTracks(String albumMbid) {
-        throw new UnsupportedOperationException();
+        Iterable<TrackDto> from = from(api.getAlbumInfo(albumMbid));
+        return map(from, this::createTrack);
     }
 
     private Iterable<Track> getTracks(String artistMbid) {
-        throw new UnsupportedOperationException();
+        Iterable<String> id = map(getAlbums(artistMbid), Album::getMbid);
+        id = filter(id, Objects::nonNull);
+        Iterable<Iterable<Track>> tracks = map(id, this::getAlbumTracks);
+        return flatMap(tracks, it -> it);
+    }
+
+    private Artist createArtist(ArtistDto dto) {
+        Iterable<Album> al = () -> getAlbums(dto.getMbid()).iterator();
+        Iterable<Track> tra = () -> getTracks(dto.getMbid()).iterator();
+        return new Artist(
+                dto.getName(),
+                dto.getListeners(),
+                dto.getMbid(),
+                dto.getUrl(),
+                dto.getImage()[0].getText(),
+                al,
+                tra
+        );
+    }
+
+    private Album createAlbuns(AlbumDto dto) {
+        Iterable<Track> tra = () -> getAlbumTracks(dto.getMbid()).iterator();
+        return new Album(
+                dto.getName(),
+                dto.getPlaycount(),
+                dto.getMbid(),
+                dto.getUrl(),
+                dto.getImage()[0].getText(),
+                tra
+        );
+    }
+
+    private Track createTrack(TrackDto dto) {
+        return new Track(
+                dto.getName(),
+                dto.getUrl(),
+                dto.getDuration());
     }
 }
