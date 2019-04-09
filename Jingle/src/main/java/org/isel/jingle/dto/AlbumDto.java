@@ -28,31 +28,46 @@
  *
  */
 
-package org.isel.jingle.util.iterators;
+package org.isel.jingle.dto;
 
-import java.util.Iterator;
+public class AlbumDto {
+    private final String name;
+    private final int playcount;
+    private final String mbid;
+    private final String url;
+    private final ImageDto[] image;
+    private final TracksDto tracks;
 
-public class IteratorLimit<T> implements Iterator<T> {
-    private final Iterator<T> iter;
-    private final int limit;
-    private int count;
-
-    public IteratorLimit(Iterable<T> src, int limit) {
-        this.iter = src.iterator();
-        this.limit = limit;
-        count = 0;
+    public AlbumDto(String name, int playcount, String mbid, String url, ImageDto[] image, TracksDto tracks) {
+        this.name = name;
+        this.playcount = playcount;
+        this.mbid = mbid;
+        this.url = url;
+        this.image = image;
+        this.tracks = tracks;
     }
 
-    @Override
-    public boolean hasNext() {
-        if(count < limit)
-            return iter.hasNext();
-        return false;
+    public String getName() {
+        return name;
     }
 
-    @Override
-    public T next() {
-        count++;
-        return iter.next();
+    public int getPlaycount() {
+        return playcount;
+    }
+
+    public String getMbid() {
+        return mbid;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public ImageDto[] getImage() {
+        return image;
+    }
+
+    public TracksDto getTracks() {
+        return tracks;
     }
 }

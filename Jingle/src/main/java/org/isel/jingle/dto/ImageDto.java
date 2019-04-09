@@ -28,31 +28,24 @@
  *
  */
 
-package org.isel.jingle.util.iterators;
+package org.isel.jingle.dto;
 
-import java.util.Iterator;
+import com.google.gson.annotations.SerializedName;
 
-public class IteratorLimit<T> implements Iterator<T> {
-    private final Iterator<T> iter;
-    private final int limit;
-    private int count;
+public class ImageDto {
+    private final String size;
+    @SerializedName("#text") final String text;
 
-    public IteratorLimit(Iterable<T> src, int limit) {
-        this.iter = src.iterator();
-        this.limit = limit;
-        count = 0;
+    public ImageDto(String size, String text) {
+        this.size = size;
+        this.text = text;
     }
 
-    @Override
-    public boolean hasNext() {
-        if(count < limit)
-            return iter.hasNext();
-        return false;
+    public String getSize() {
+        return size;
     }
 
-    @Override
-    public T next() {
-        count++;
-        return iter.next();
+    public String getText() {
+        return text;
     }
 }

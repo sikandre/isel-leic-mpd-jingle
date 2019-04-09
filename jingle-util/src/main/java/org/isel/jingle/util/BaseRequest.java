@@ -28,31 +28,27 @@
  *
  */
 
-package org.isel.jingle.util.iterators;
+package org.isel.jingle.util;
 
-import java.util.Iterator;
+import org.isel.jingle.util.iterators.IteratorInputStream;
 
-public class IteratorLimit<T> implements Iterator<T> {
-    private final Iterator<T> iter;
-    private final int limit;
-    private int count;
+import java.io.InputStream;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-    public IteratorLimit(Iterable<T> src, int limit) {
-        this.iter = src.iterator();
-        this.limit = limit;
-        count = 0;
+public class BaseRequest implements Request {
+
+    private final Function<String, InputStream> openStream;
+
+    public BaseRequest(Function<String, InputStream> openStream) {
+        this.openStream = openStream;
     }
 
-    @Override
-    public boolean hasNext() {
-        if(count < limit)
-            return iter.hasNext();
-        return false;
-    }
+    public final Iterable<String> getLines(String path) {
 
-    @Override
-    public T next() {
-        count++;
-        return iter.next();
+        return () -> {
+            Supplier<InputStream> in = () -> openStream.apply(path);
+            return new IteratorInputStream(in);
+        };
     }
 }

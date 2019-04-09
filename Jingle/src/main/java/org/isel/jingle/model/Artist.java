@@ -28,31 +28,55 @@
  *
  */
 
-package org.isel.jingle.util.iterators;
+package org.isel.jingle.model;
 
-import java.util.Iterator;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
-public class IteratorLimit<T> implements Iterator<T> {
-    private final Iterator<T> iter;
-    private final int limit;
-    private int count;
+public class Artist {
+    final String name;
+    final int listeners;
+    final String mbid;
+    final String url;
+    final String image;
+    final Supplier<Stream<Album>> albums;
+    final Supplier<Stream<Track>> tracks;
 
-    public IteratorLimit(Iterable<T> src, int limit) {
-        this.iter = src.iterator();
-        this.limit = limit;
-        count = 0;
+    public Artist(String name, int listeners, String mbid, String url, String image, Supplier<Stream<Album>> albums, Supplier<Stream<Track>> tracks) {
+        this.name = name;
+        this.listeners = listeners;
+        this.mbid = mbid;
+        this.url = url;
+        this.image = image;
+        this.albums = albums;
+        this.tracks = tracks;
     }
 
-    @Override
-    public boolean hasNext() {
-        if(count < limit)
-            return iter.hasNext();
-        return false;
+    public String getName() {
+        return name;
     }
 
-    @Override
-    public T next() {
-        count++;
-        return iter.next();
+    public int getListeners() {
+        return listeners;
+    }
+
+    public String getMbid() {
+        return mbid;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public Supplier<Stream<Album>> getAlbums() {
+        return albums;
+    }
+
+    public Supplier<Stream<Track>> getTracks() {
+        return tracks;
     }
 }

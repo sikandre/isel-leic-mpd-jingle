@@ -28,31 +28,28 @@
  *
  */
 
-package org.isel.jingle.util.iterators;
+package org.isel.jingle.dto;
 
-import java.util.Iterator;
+public class TrackDto {
+    private final String name;
+    private final String url;
+    private final int duration;
 
-public class IteratorLimit<T> implements Iterator<T> {
-    private final Iterator<T> iter;
-    private final int limit;
-    private int count;
-
-    public IteratorLimit(Iterable<T> src, int limit) {
-        this.iter = src.iterator();
-        this.limit = limit;
-        count = 0;
+    public TrackDto(String name, String url, int duration) {
+        this.name = name;
+        this.url = url;
+        this.duration = duration;
     }
 
-    @Override
-    public boolean hasNext() {
-        if(count < limit)
-            return iter.hasNext();
-        return false;
+    public String getName() {
+        return name;
     }
 
-    @Override
-    public T next() {
-        count++;
-        return iter.next();
+    public String getUrl() {
+        return url;
+    }
+
+    public int getDuration() {
+        return duration;
     }
 }

@@ -28,31 +28,25 @@
  *
  */
 
-package org.isel.jingle.util.iterators;
+package org.isel.jingle.util;
 
-import java.util.Iterator;
+import java.io.IOException;
+import java.io.InputStream;
 
-public class IteratorLimit<T> implements Iterator<T> {
-    private final Iterator<T> iter;
-    private final int limit;
-    private int count;
+public class MockRequest {
 
-    public IteratorLimit(Iterable<T> src, int limit) {
-        this.iter = src.iterator();
-        this.limit = limit;
-        count = 0;
-    }
-
-    @Override
-    public boolean hasNext() {
-        if(count < limit)
-            return iter.hasNext();
-        return false;
-    }
-
-    @Override
-    public T next() {
-        count++;
-        return iter.next();
+    public  static InputStream openStream(String uri) {
+        String[] parts = uri.split("/");
+        String path = parts[parts.length-1]
+                .replace('?', '-')
+                .replace('&', '-')
+                .replace('=', '-')
+                .replace(',', '-')
+                .substring(0,68);
+        try {
+            return ClassLoader.getSystemResource(path).openStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

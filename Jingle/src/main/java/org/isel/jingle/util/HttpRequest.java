@@ -28,31 +28,19 @@
  *
  */
 
-package org.isel.jingle.util.iterators;
+package org.isel.jingle.util;
 
-import java.util.Iterator;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
-public class IteratorLimit<T> implements Iterator<T> {
-    private final Iterator<T> iter;
-    private final int limit;
-    private int count;
+public class HttpRequest{
 
-    public IteratorLimit(Iterable<T> src, int limit) {
-        this.iter = src.iterator();
-        this.limit = limit;
-        count = 0;
-    }
-
-    @Override
-    public boolean hasNext() {
-        if(count < limit)
-            return iter.hasNext();
-        return false;
-    }
-
-    @Override
-    public T next() {
-        count++;
-        return iter.next();
+    public static InputStream openStream(String path) {
+        try {
+            return new URL(path).openStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
