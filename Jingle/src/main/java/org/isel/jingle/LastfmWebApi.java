@@ -34,6 +34,11 @@ import com.google.gson.Gson;
 import org.isel.jingle.dto.*;
 import org.isel.jingle.util.Request;
 
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 public class LastfmWebApi {
     private static final String LASTFM_API_KEY = "55394a24c02f82f0b62712b219374964";
     private static final String LASTFM_HOST = "http://ws.audioscrobbler.com/2.0/";
@@ -76,16 +81,18 @@ public class LastfmWebApi {
 
     public TrackDto[] getAlbumInfo(String albumMbid){
         String path = String.format(LASTFM_GET_ALBUM_INFO, albumMbid);
-        Iterable<String> src = request.getLines(path);
-        String body = String.join("", src);
+        Stream<String> src = request.getLines(path);
+        String body = src.map(Objects::toString).collect(Collectors.joining(""));
         ResultAlbumDto dto = gson.fromJson(body, ResultAlbumDto.class);
-
+        if(dto.getAlbum()==null){
+            return new TrackDto[0];
+        }
         return dto.getAlbum().getTracks().getTrack();
     }
 
     private String getBody(String host, String name, int page) {
         String path = String.format(host, name, page);
-        Iterable<String> src = request.getLines(path);
-        return String.join("", src);
+        Stream<String> src = request.getLines(path);
+        return src.map(Objects::toString).collect(Collectors.joining(""));
     }
 }
