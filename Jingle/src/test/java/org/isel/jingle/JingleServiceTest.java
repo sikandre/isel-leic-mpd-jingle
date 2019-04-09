@@ -39,6 +39,7 @@ import org.junit.Test;
 
 import java.io.InputStream;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static junit.framework.Assert.assertEquals;
 import static org.isel.jingle.util.queries.LazyQueries.count;
@@ -61,9 +62,9 @@ public class JingleServiceTest {
     public void searchHiperAndCountAllResults() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
-        Iterable<Artist> artists = service.searchArtist("hiper");
+        Stream<Artist> artists = service.searchArtist("hiper");
         assertEquals(0, httpGet.count);
-        assertEquals(702, count(artists));  //TODO
+        assertEquals(702, count(artists));
         assertEquals(25, httpGet.count);
         Artist last = last(artists);
         assertEquals("Coma - Hipertrofia.(2008)", last.getName());

@@ -30,7 +30,9 @@
 
 package org.isel.jingle.util;
 
+import java.util.stream.Stream;
+
 public interface Request {
 
-    public Iterable<String> getLines(String path);
+    Stream<String> getLines(String path);
 }

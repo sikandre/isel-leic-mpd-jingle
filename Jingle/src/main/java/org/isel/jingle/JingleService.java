@@ -40,6 +40,7 @@ import org.isel.jingle.util.BaseRequest;
 import org.isel.jingle.util.HttpRequest;
 
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class JingleService {
@@ -54,7 +55,6 @@ public class JingleService {
         this(new LastfmWebApi(new BaseRequest(HttpRequest::openStream)));
     }
 
-
     public Stream<Artist> searchArtist(String name) {
         Stream<Integer> pageNr = Stream.iterate(1, n -> n + 1);
         Stream<ArtistDto[]> map = pageNr.map(n -> api.searchArtist(name, n));
@@ -63,50 +63,47 @@ public class JingleService {
         return dto.map(this::createArtist);
     }
 
-    public Iterable<Album> getAlbums(String artistMbid) {
-        Iterable<Integer> pageNr = iterate(1, n -> n + 1);
-        Iterable<AlbumDto[]> map = map(pageNr, nr -> api.getAlbums(artistMbid, nr));
-        map = takeWhile(map, arr -> arr.length!=0);
-        Iterable<AlbumDto> dto = flatMap(map, LazyQueries::from);
-        return map(dto, this::createAlbuns);
-
+    public Stream<Album> getAlbums(String artistMbid) {
+        Stream<Integer> pageNr = Stream.iterate(1, n -> n + 1);
+        Stream<AlbumDto[]> map = pageNr.map(n -> api.getAlbums(artistMbid, n));
+        map = map.takeWhile(arr -> arr.length != 0);
+        Stream<AlbumDto> dto = map.flatMap(Stream::of);
+        return dto.map(this::createAlbums);
     }
 
-    private Iterable<Track> getAlbumTracks(String albumMbid) {
-        Iterable<TrackDto> from = from(api.getAlbumInfo(albumMbid));
-        return map(from, this::createTrack);
+    private Stream<Track> getAlbumTracks(String albumMbid) {
+        Stream<TrackDto> dto = Stream.of(api.getAlbumInfo(albumMbid));
+        return dto.map(this::createTrack);
     }
 
-    private Iterable<Track> getTracks(String artistMbid) {
-        Iterable<String> id = map(getAlbums(artistMbid), Album::getMbid);
-        id = filter(id, Objects::nonNull);
-        Iterable<Iterable<Track>> tracks = map(id, this::getAlbumTracks);
-        return flatMap(tracks, it -> it);
+    private Stream<Track> getTracks(String artistMbid) {//suplier
+        Stream<String> id = getAlbums(artistMbid).map(Album::getMbid)
+                .filter(Objects::isNull);
+        Stream<Stream<Track>> st = id.map(this::getAlbumTracks);
+        Stream<Track> s = st.flatMap(Function.identity());  //s -> s
+        return s;
     }
 
     private Artist createArtist(ArtistDto dto) {
-        Iterable<Album> al = () -> getAlbums(dto.getMbid()).iterator();
-        Iterable<Track> tra = () -> getTracks(dto.getMbid()).iterator();
         return new Artist(
                 dto.getName(),
                 dto.getListeners(),
                 dto.getMbid(),
                 dto.getUrl(),
                 dto.getImage()[0].getText(),
-                al,
-                tra
+                () -> getAlbums(dto.getMbid()),
+                () -> getTracks(dto.getMbid())
         );
     }
 
-    private Album createAlbuns(AlbumDto dto) {
-        Iterable<Track> tra = () -> getAlbumTracks(dto.getMbid()).iterator();
+    private Album createAlbums(AlbumDto dto) {
         return new Album(
                 dto.getName(),
                 dto.getPlaycount(),
                 dto.getMbid(),
                 dto.getUrl(),
                 dto.getImage()[0].getText(),
-                tra
+                () -> getAlbumTracks(dto.getMbid())
         );
     }
 
