@@ -36,13 +36,11 @@ import org.isel.jingle.dto.TrackDto;
 import org.isel.jingle.model.Album;
 import org.isel.jingle.model.Artist;
 import org.isel.jingle.model.Track;
-import org.isel.jingle.util.queries.LazyQueries;
 import org.isel.jingle.util.BaseRequest;
 import org.isel.jingle.util.HttpRequest;
 
 import java.util.Objects;
-
-import static org.isel.jingle.util.queries.LazyQueries.*;
+import java.util.stream.Stream;
 
 public class JingleService {
 
@@ -57,12 +55,12 @@ public class JingleService {
     }
 
 
-    public Iterable<Artist> searchArtist(String name) {
-        Iterable<Integer> pageNr = iterate(1, n -> n + 1);
-        Iterable<ArtistDto[]> map = map(pageNr, nr -> api.searchArtist(name, nr));
-        map = takeWhile(map, arr -> arr.length!=0);
-        Iterable<ArtistDto> dtos = flatMap(map, LazyQueries::from);
-        return map(dtos, this::createArtist);
+    public Stream<Artist> searchArtist(String name) {
+        Stream<Integer> pageNr = Stream.iterate(1, n -> n + 1);
+        Stream<ArtistDto[]> map = pageNr.map(n -> api.searchArtist(name, n));
+        map = map.takeWhile(arr -> arr.length != 0);
+        Stream<ArtistDto> dto = map.flatMap(Stream::of);
+        return dto.map(this::createArtist);
     }
 
     public Iterable<Album> getAlbums(String artistMbid) {
