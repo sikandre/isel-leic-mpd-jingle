@@ -38,7 +38,9 @@ import org.isel.jingle.util.HttpRequest;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static junit.framework.Assert.assertEquals;
@@ -57,11 +59,11 @@ public class JingleServiceTest {
     public void searchHiperAndCountAllResults() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
-        Stream<Artist> artists = service.searchArtist("hiper");
+        Supplier<Stream<Artist>> artists = () -> service.searchArtist("hiper");
         assertEquals(0, httpGet.count);
-        assertEquals(702, count(artists));  //TODO
+        assertEquals(702, artists.get().count());  //TODO
         assertEquals(25, httpGet.count);
-        Artist last = last(artists);
+        Artist last = artists.get().reduce((first, second) -> second).orElse(null);
         assertEquals("Coma - Hipertrofia.(2008)", last.getName());
         assertEquals(50, httpGet.count);
     }
@@ -70,13 +72,13 @@ public class JingleServiceTest {
     public void getFirstAlbumOfMuse() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
-        Iterable<Artist> artists = service.searchArtist("muse");
+        Stream<Artist> artists = service.searchArtist("muse");
         assertEquals(0, httpGet.count);
-        Artist muse = first(artists).get();
+        Artist muse = artists.findFirst().get();
         assertEquals(1, httpGet.count);
-        Iterable<Album> albums = muse.getAlbums();
+        Stream<Album> albums = muse.getAlbums().get();
         assertEquals(1, httpGet.count);
-        Album first = first(albums).get();
+        Album first = albums.findFirst().get();
         assertEquals(2, httpGet.count);
         assertEquals("Black Holes and Revelations", first.getName());
     }
@@ -85,10 +87,9 @@ public class JingleServiceTest {
     public void get111AlbumsOfMuse() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
-        Artist muse = first(service.searchArtist("muse")).get();
-        Iterable<Album> albums = limit(muse.getAlbums(), 111);
-
-        assertEquals(111, count(albums));
+        Artist muse = service.searchArtist("muse").findFirst().get();
+        Stream<Album> albums = muse.getAlbums().get().limit(111);
+        assertEquals(111, albums.count());
         assertEquals(4, httpGet.count); // 1 for artist + 3 pages of albums each with 50 albums
     }
 
@@ -96,10 +97,10 @@ public class JingleServiceTest {
     public void getSecondSongFromBlackHolesAlbumOfMuse() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
-        Album blackHoles = first(first(service.searchArtist("muse")).get().getAlbums()).get();
+        Optional<Album> blackHoles = service.searchArtist("muse").findFirst().get().getAlbums().get().findFirst();
         assertEquals(2, httpGet.count); // 1 for artist + 1 page of albums
-        assertEquals("Black Holes and Revelations", blackHoles.getName());
-        Track song = first(skip(blackHoles.getTracks(), 1)).get();
+        assertEquals("Black Holes and Revelations", blackHoles.get().getName());
+        Track song = blackHoles.get().getTracks().get().skip(1).findFirst().get();
         assertEquals(3, httpGet.count); // + 1 to getTracks
         assertEquals("Starlight", song.getName());
     }
@@ -108,18 +109,19 @@ public class JingleServiceTest {
     public void get42thTrackOfMuse() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
-        Iterable<Track> tracks = first(service.searchArtist("muse")).get().getTracks();
+        Supplier<Stream<Track>> tracks = service.searchArtist("muse").findFirst().get().getTracks();
         assertEquals(1, httpGet.count); // 1 for artist + 0 for tracks because it fetches lazily
-        Track track = first(skip(tracks, 42)).get(); // + 1 to getAlbums + 4 to get tracks of first 4 albums.
+        Track track = tracks.get().skip(42).findFirst().get();// + 1 to getAlbums + 4 to get tracks of first 4 albums.
         assertEquals("MK Ultra", track.getName());
         assertEquals(6, httpGet.count);
     }
+    
     @Test
     public void getLastTrackOfMuseOf500() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
-        Iterable<Track> tracks = limit(first(service.searchArtist("muse")).get().getTracks(), 500);
-        assertEquals(500, count(tracks));
-        assertEquals(80, httpGet.count); // Each page has 50 albums => 50 requests to get their tracks. Some albums have no tracks.
+        Stream<Track> tracks = service.searchArtist("muse").findFirst().get().getTracks().get().limit(500);
+        assertEquals(500, tracks.count());
+        assertEquals(81, httpGet.count); // Each page has 50 albums => 50 requests to get their tracks. Some albums have no tracks.
     }
 }
