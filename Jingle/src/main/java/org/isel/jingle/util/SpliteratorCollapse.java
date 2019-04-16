@@ -1,4 +1,4 @@
-package org.isel.jingle;
+package org.isel.jingle.util;
 
 import java.util.Iterator;
 import java.util.Spliterator;

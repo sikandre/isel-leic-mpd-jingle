@@ -118,12 +118,13 @@ public class JingleServiceTest {
         assertEquals(6, httpGet.count);
     }
 
-    /*@Test
+    @Test
     public void getLastTrackOfMuseOf500() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
-        Iterable<Track> tracks = limit(first(service.searchArtist("muse")).get().getTracks(), 500);
-        assertEquals(500, count(tracks));
-        assertEquals(80, httpGet.count); // Each page has 50 albums => 50 requests to get their tracks. Some albums have no tracks.
-    }*/
+        //Stream<Track> tracks = limit(first(service.searchArtist("muse")).get().getTracks(), 500);
+        Stream<Track> tracks = service.searchArtist("muse").findFirst().get().getTracks().limit(500);
+        assertEquals(500, tracks.count());
+        assertEquals(81, httpGet.count); // Each page has 50 albums => 50 requests to get their tracks. Some albums have no tracks.
+    }
 }
