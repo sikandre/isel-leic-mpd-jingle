@@ -1,4 +1,4 @@
-package org.isel.jingle.util;
+package org.isel.jingle.util.Spliterator;
 
 import java.util.ArrayList;
 import java.util.Spliterator;
@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 import static java.util.Spliterators.AbstractSpliterator;
 
-public class SpliteratorCache<T> extends AbstractSpliterator {
+public class SpliteratorCache<T> extends AbstractSpliterator<T> {
     private final Spliterator<T> src;
     private final ArrayList<T> list;
     private int idx;
@@ -18,8 +18,9 @@ public class SpliteratorCache<T> extends AbstractSpliterator {
         idx = 0;
     }
 
+
     @Override
-    public boolean tryAdvance(Consumer action) {
+    public boolean tryAdvance(Consumer<? super T> action) {
         if(idx<list.size()){
             action.accept(list.get(idx++));
             return true;

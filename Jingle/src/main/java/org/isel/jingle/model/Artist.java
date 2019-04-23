@@ -30,19 +30,24 @@
 
 package org.isel.jingle.model;
 
+import org.isel.jingle.util.StreamUtils;
+
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class Artist {
-    final String name;
-    final int listeners;
-    final String mbid;
-    final String url;
-    final String image;
-    final Supplier<Stream<Album>> albums;
-    final Supplier<Stream<Track>> tracks;
+    private final String name;
+    private final int listeners;
+    private final String mbid;
+    private final String url;
+    private final String image;
+    private final Supplier<Stream<Album>> albums;
+    private final Supplier<Stream<Track>> tracks;
+    private final Function<String, Stream<TrackRank>> func;
 
-    public Artist(String name, int listeners, String mbid, String url, String image, Supplier<Stream<Album>> albums, Supplier<Stream<Track>> tracks) {
+    public Artist(String name, int listeners, String mbid, String url, String image, Supplier<Stream<Album>> albums,
+                  Supplier<Stream<Track>> tracks, Function<String, Stream<TrackRank>> func) {
         this.name = name;
         this.listeners = listeners;
         this.mbid = mbid;
@@ -50,6 +55,7 @@ public class Artist {
         this.image = image;
         this.albums = albums;
         this.tracks = tracks;
+        this.func = func;
     }
 
     public String getName() {
@@ -78,5 +84,9 @@ public class Artist {
 
     public Stream<Track> getTracks() {
         return tracks.get();
+    }
+
+    public Stream<TrackRank> getTracksRank(String country) {
+        return func.apply(country);
     }
 }

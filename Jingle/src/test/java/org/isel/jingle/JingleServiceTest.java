@@ -33,13 +33,16 @@ package org.isel.jingle;
 import org.isel.jingle.model.Album;
 import org.isel.jingle.model.Artist;
 import org.isel.jingle.model.Track;
+import org.isel.jingle.model.TrackRank;
 import org.isel.jingle.util.BaseRequest;
 import org.isel.jingle.util.HttpRequest;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static junit.framework.Assert.assertEquals;
@@ -60,7 +63,7 @@ public class JingleServiceTest {
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
         Supplier<Stream<Artist>> artists =() -> service.searchArtist("hiper");
         assertEquals(0, httpGet.count);
-        assertEquals(702, artists.get().count());
+        assertEquals(704, artists.get().count());
         assertEquals(25, httpGet.count);
         Artist last = artists.get().reduce((first, second) -> second).orElse(null);
         assertEquals("Coma - Hipertrofia.(2008)", last.getName());
@@ -87,7 +90,6 @@ public class JingleServiceTest {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
         Artist muse = service.searchArtist("muse").findFirst().get();
-        //Stream<Album> albums = limit(muse.getAlbums(), 111);
         Stream<Album> albums = muse.getAlbums().limit(111);
 
         assertEquals(111, albums.count());
@@ -98,7 +100,6 @@ public class JingleServiceTest {
     public void getSecondSongFromBlackHolesAlbumOfMuse() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
-        //Album blackHoles = first(first(service.searchArtist("muse")).get().getAlbums()).get();
         Album blackHoles = service.searchArtist("muse").findFirst().get().getAlbums().findFirst().get();
         assertEquals(2, httpGet.count); // 1 for artist + 1 page of albums
         assertEquals("Black Holes and Revelations", blackHoles.getName());
@@ -111,7 +112,6 @@ public class JingleServiceTest {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
         Stream<Track> tracks = service.searchArtist("muse").findFirst().get().getTracks();
-        //Stream<Track> tracks = service.searchArtist("muse").findFirst().get().getTracks();
         assertEquals(1, httpGet.count);
         Track track = tracks.skip(42).findFirst().get(); // + 1 to getAlbums + 4 to get tracks of first 4 albums.
         assertEquals("MK Ultra", track.getName());
@@ -122,9 +122,28 @@ public class JingleServiceTest {
     public void getLastTrackOfMuseOf500() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
-        //Stream<Track> tracks = limit(first(service.searchArtist("muse")).get().getTracks(), 500);
         Stream<Track> tracks = service.searchArtist("muse").findFirst().get().getTracks().limit(500);
         assertEquals(500, tracks.count());
-        assertEquals(81, httpGet.count); // Each page has 50 albums => 50 requests to get their tracks. Some albums have no tracks.
+        assertEquals(78, httpGet.count); // Each page has 50 albums => 50 requests to get their tracks. Some albums have no tracks.
+    }
+
+    @Test
+    public void get100TopTracksFromPortugal(){
+        HttpGet httpGet = new HttpGet();
+        JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
+        Stream<TrackRank> topTracks = service.getTopTracks("Portugal").limit(100);
+        List<TrackRank> topList = topTracks.collect(Collectors.toList());
+        assertEquals(100, topList.size());
+        assertEquals(2,httpGet.count);
+    }
+
+    @Test
+    public void getTop100FromPortugal(){
+        HttpGet httpGet = new HttpGet();
+        JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
+        Artist artist = service.searchArtist("Stick Figure").findFirst().get();
+        Stream<TrackRank> tracksRank = service.getTracksRank(artist.getMbid(), "Portugal");
+        List<TrackRank> collect = tracksRank.collect(Collectors.toList());
+        assertEquals(43,collect.size()); //43 tracks
     }
 }

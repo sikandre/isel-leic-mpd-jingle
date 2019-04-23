@@ -2,15 +2,14 @@
 
 package org.isel.jingle;
 
-import org.isel.jingle.dto.AlbumDto;
-import org.isel.jingle.dto.ArtistDto;
-import org.isel.jingle.dto.TrackDto;
+import org.isel.jingle.dto.*;
 import org.isel.jingle.util.BaseRequest;
 import org.isel.jingle.util.HttpRequest;
 import org.isel.jingle.util.Request;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 
 public class LastfmWebApiTest {
@@ -42,5 +41,13 @@ public class LastfmWebApiTest {
         AlbumDto album = api.getAlbums(mbid, 1)[0];
         TrackDto track = api.getAlbumInfo(album.getMbid())[1];
         assertEquals("Starlight", track.getName());
+    }
+
+    @Test
+    public void getTopTracksFromPortugal(){
+        Request req = new BaseRequest(HttpRequest::openStream);
+        LastfmWebApi api = new LastfmWebApi(req);
+        TrackRankDto[] topTracks = api.getTopTracks("Portugal", 1);
+        assertEquals(50, topTracks.length);
     }
 }
