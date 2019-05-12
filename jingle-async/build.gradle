@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile project(':jingle-util')
+    compile 'com.google.code.gson:gson:2.8.5'
+	compile 'com.github.javasync:AsyncFileRw:1.1.2'
+    compile 'org.asynchttpclient:async-http-client:2.4.9'
+    testCompile 'junit:junit:4.8.1'
+	
+}
