@@ -30,16 +30,22 @@
 
 package org.isel.jingle.model;
 
-public class Artist {
-    final String name;
-    final int listeners;
-    final String mbid;
-    final String url;
-    final String image;
-    final Iterable<Album> albums;
-    final Iterable<Track> tracks;
+import io.reactivex.Observable;
 
-    public Artist(String name, int listeners, String mbid, String url, String image, Iterable<Album> albums, Iterable<Track> tracks) {
+import java.util.function.Function;
+
+public class Artist {
+    private final String name;
+    private final int listeners;
+    private final String mbid;
+    private final String url;
+    private final String image;
+    private final Observable<Album> albums;
+    private final Observable<Track> tracks;
+    private final Function<String, Observable<TrackRank>>func;
+
+    public Artist(String name, int listeners, String mbid, String url, String image, Observable<Album> albums,
+                  Observable<Track> tracks, Function<String, Observable<TrackRank>> func) {
         this.name = name;
         this.listeners = listeners;
         this.mbid = mbid;
@@ -47,6 +53,7 @@ public class Artist {
         this.image = image;
         this.albums = albums;
         this.tracks = tracks;
+        this.func = func;
     }
 
     public String getName() {
@@ -69,11 +76,15 @@ public class Artist {
         return image;
     }
 
-    public Iterable<Album> getAlbums() {
+    public Observable<Album> getAlbums() {
         return albums;
     }
 
-    public Iterable<Track> getTracks() {
+    public Observable<Track> getTracks() {
         return tracks;
+    }
+
+    public Observable<TrackRank> getTracksRank(String country) {
+        return func.apply(country);
     }
 }

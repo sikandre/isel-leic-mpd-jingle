@@ -31,10 +31,8 @@
 package org.isel.jingle;
 
 import com.google.gson.Gson;
-import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.Dsl;
-import org.isel.jingle.util.AsyncRequest;
 import org.isel.jingle.dto.*;
+import org.isel.jingle.util.AsyncRequest;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -42,16 +40,20 @@ public class LastfmWebApi {
     private static final String LASTFM_API_KEY = "55394a24c02f82f0b62712b219374964";
     private static final String LASTFM_HOST = "http://ws.audioscrobbler.com/2.0/";
     private static final String LASTFM_SEARCH = LASTFM_HOST
-                                                    + "?method=artist.search&format=json&artist=%s&page=%d&api_key="
-                                                    + LASTFM_API_KEY;
+            + "?method=artist.search&format=json&artist=%s&page=%d&api_key="
+            + LASTFM_API_KEY;
 
     private static final String LASTFM_GET_ALBUMS = LASTFM_HOST
-                                                    + "?method=artist.gettopalbums&format=json&mbid=%s&page=%d&api_key="
-                                                    + LASTFM_API_KEY;
+            + "?method=artist.gettopalbums&format=json&mbid=%s&page=%d&api_key="
+            + LASTFM_API_KEY;
 
     private static final String LASTFM_GET_ALBUM_INFO = LASTFM_HOST
-                                                    + "?method=album.getinfo&format=json&mbid=%s&api_key="
-                                                    + LASTFM_API_KEY;
+            + "?method=album.getinfo&format=json&mbid=%s&api_key="
+            + LASTFM_API_KEY;
+
+    private static final String LASTfM_GET_TOP_TRACKS = LASTFM_HOST
+            + "?method=geo.gettoptracks&format=json&country=%s&page=%s&api_key="
+            +LASTFM_API_KEY;
 
     private final Gson gson;
     private final AsyncRequest request;
@@ -60,12 +62,6 @@ public class LastfmWebApi {
         this.request = request;
         this.gson = new Gson();
     }
-
-    public LastfmWebApi(AsyncRequest request, Gson gson) {
-        this.request = request;
-        this.gson = gson;
-    }
-
 
     public CompletableFuture<ArtistDto[]> searchArtist(String name, int page) {
         String path = String.format(LASTFM_SEARCH, name, page);
@@ -98,4 +94,12 @@ public class LastfmWebApi {
         return cfs;
     }
 
+    public CompletableFuture<TrackRankDto[]> getTopTracks(String country, int page){
+        String path = String.format(LASTfM_GET_TOP_TRACKS, country, page);
+        CompletableFuture<String> src = request.getLines(path);
+        return src.thenApply(body -> {
+            ResultTopTracksDto dto = gson.fromJson(body, ResultTopTracksDto.class);
+            return dto.getTracks().getTrack();
+        });
+    }
 }

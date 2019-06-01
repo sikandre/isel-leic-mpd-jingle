@@ -30,31 +30,24 @@
 
 package org.isel.jingle.util;
 
-import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.Dsl;
+import org.asynchttpclient.BoundRequestBuilder;
 import org.asynchttpclient.Response;
-import org.isel.jingle.util.iterators.IteratorInputStream;
 
-import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
-public class AsyncBaseRequest implements AsyncRequest {
+public class BaseRequestAsync implements AsyncRequest {
+    private final Function<String, BoundRequestBuilder> openStreamAsync;
 
-    private final AsyncHttpClient ahc = Dsl.asyncHttpClient();
-
-    @Override
-    public CompletableFuture<String> getLines(String path) {
-        return ahc
-                .prepareGet(path)
-                .execute()
-                .toCompletableFuture()
-                .thenApply(Response::getResponseBody);
+    public BaseRequestAsync(Function<String, BoundRequestBuilder> openStreamAsync) {
+        this.openStreamAsync = openStreamAsync;
     }
 
     @Override
-    public void close() throws Exception {
-        ahc.close();
+    public final CompletableFuture<String> getLines(String path) {
+        return openStreamAsync.apply(path)
+                .execute()
+                .toCompletableFuture()
+                .thenApply(Response::getResponseBody);
     }
 }

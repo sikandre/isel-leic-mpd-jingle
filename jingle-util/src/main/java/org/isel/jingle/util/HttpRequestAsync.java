@@ -28,63 +28,14 @@
  *
  */
 
-package org.isel.jingle.model;
+package org.isel.jingle.util;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.Dsl;
 
-public class Artist {
-    private final String name;
-    private final int listeners;
-    private final String mbid;
-    private final String url;
-    private final String image;
-    private final Supplier<Stream<Album>> albums;
-    private final Supplier<Stream<Track>> tracks;
-    private final Function<String, Stream<TrackRank>> func;
+public class HttpRequestAsync {
 
-    public Artist(String name, int listeners, String mbid, String url, String image, Supplier<Stream<Album>> albums,
-                  Supplier<Stream<Track>> tracks, Function<String, Stream<TrackRank>> func) {
-        this.name = name;
-        this.listeners = listeners;
-        this.mbid = mbid;
-        this.url = url;
-        this.image = image;
-        this.albums = albums;
-        this.tracks = tracks;
-        this.func = func;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getListeners() {
-        return listeners;
-    }
-
-    public String getMbid() {
-        return mbid;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public Stream<Album> getAlbums() {
-        return albums.get();
-    }
-
-    public Stream<Track> getTracks() {
-        return tracks.get();
-    }
-
-    public Stream<TrackRank> getTracksRank(String country) {
-        return func.apply(country);
+    public static BoundRequestBuilder openStreamAsync (String path) {
+        return Dsl.asyncHttpClient().prepareGet(path);
     }
 }

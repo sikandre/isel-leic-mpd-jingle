@@ -1,52 +1,24 @@
-/*
- * GNU General Public License v3.0
- *
- * Copyright (c) 2019, Miguel Gamboa (gamboa.pt)
- *
- *   All rights granted under this License are granted for the term of
- * copyright on the Program, and are irrevocable provided the stated
- * conditions are met.  This License explicitly affirms your unlimited
- * permission to run the unmodified Program.  The output from running a
- * covered work is covered by this License only if the output, given its
- * content, constitutes a covered work.  This License acknowledges your
- * rights of fair use or other equivalent, as provided by copyright law.
- *
- *   You may make, run and propagate covered works that you do not
- * convey, without conditions so long as your license otherwise remains
- * in force.  You may convey covered works to others for the sole purpose
- * of having them make modifications exclusively for you, or provide you
- * with facilities for running those works, provided that you comply with
- * the terms of this License in conveying all material for which you do
- * not control copyright.  Those thus making or running the covered works
- * for you must do so exclusively on your behalf, under your direction
- * and control, on terms that prohibit them from making any copies of
- * your copyrighted material outside their relationship with you.
- *
- *   Conveying under any other circumstances is permitted solely under
- * the conditions stated below.  Sublicensing is not allowed; section 10
- * makes it unnecessary.
- *
- */
 
 package org.isel.jingle;
 
 import io.reactivex.Observable;
+import io.reactivex.internal.functions.Functions;
 import org.isel.jingle.dto.AlbumDto;
 import org.isel.jingle.dto.ArtistDto;
 import org.isel.jingle.dto.TrackDto;
+import org.isel.jingle.dto.TrackRankDto;
 import org.isel.jingle.model.Album;
 import org.isel.jingle.model.Artist;
 import org.isel.jingle.model.Track;
-import org.isel.jingle.util.AsyncBaseRequest;
-import org.isel.jingle.util.queries.LazyQueries;
-import org.isel.jingle.util.BaseRequest;
-import org.isel.jingle.util.HttpRequest;
+import org.isel.jingle.model.TrackRank;
+import org.isel.jingle.util.BaseRequestAsync;
+import org.isel.jingle.util.HttpRequestAsync;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Stream;
-
-import static org.isel.jingle.util.queries.LazyQueries.*;
 
 public class JingleService {
 
@@ -55,78 +27,124 @@ public class JingleService {
     public JingleService(LastfmWebApi api) {
         this.api = api;
     }
-
     public JingleService() {
-        this(new LastfmWebApi(new AsyncBaseRequest()));
+        this(new LastfmWebApi(new BaseRequestAsync(HttpRequestAsync::openStreamAsync)));
     }
+
+
 
 
     public Observable<Artist> searchArtist(String name) {
         Stream<CompletableFuture<ArtistDto[]>> cf = Stream
-                .iterate(0, n -> n + 1)
+                .iterate(1, n -> n + 1)
                 .map(nr -> api.searchArtist(name, nr));
-
         Observable<ArtistDto[]> dto = Observable
                 .fromIterable(cf::iterator)
                 .flatMap(Observable::fromFuture);
-
-        Observable<ArtistDto> artist = dto
+        return dto
                 .takeWhile(arr -> arr.length != 0)
                 .flatMap(Observable::fromArray)
                 .map(this::createArtist);
-
-
-        /*Iterable<Integer> pageNr = iterate(1, n -> n + 1);
-        Iterable<ArtistDto[]> map = map(pageNr, nr -> api.searchArtist(name, nr));
-        map = takeWhile(map, arr -> arr.length!=0);
-        Iterable<ArtistDto> dtos = flatMap(map, LazyQueries::from);
-        return map(dtos, this::createArtist);*/
     }
 
-    public Iterable<Album> getAlbums(String artistMbid) {
-        Iterable<Integer> pageNr = iterate(1, n -> n + 1);
-        Iterable<AlbumDto[]> map = map(pageNr, nr -> api.getAlbums(artistMbid, nr));
-        map = takeWhile(map, arr -> arr.length!=0);
-        Iterable<AlbumDto> dto = flatMap(map, LazyQueries::from);
-        return map(dto, this::createAlbuns);
-
+    public Observable<Album> getAlbums(String artistMbid) {
+        Stream<CompletableFuture<AlbumDto[]>> cf = Stream
+                .iterate(1, n -> n + 1)
+                .map(nr -> api.getAlbums(artistMbid, nr));
+        Observable<AlbumDto[]> dto = Observable
+                .fromIterable(cf::iterator)
+                .flatMap(Observable::fromFuture);
+        return dto
+                .takeWhile(arr -> arr.length != 0)
+                .flatMap(Observable::fromArray)
+                .map(this::createAlbums);
     }
 
-    private Iterable<Track> getAlbumTracks(String albumMbid) {
-        Iterable<TrackDto> from = from(api.getAlbumInfo(albumMbid));
-        return map(from, this::createTrack);
+    private Observable<Track> getAlbumTracks(String albumMbid) {
+        Stream<CompletableFuture<TrackDto[]>> cf = Stream.of(api.getAlbumInfo(albumMbid));
+        Observable<TrackDto[]> dto = Observable
+                .fromIterable(cf::iterator)
+                .flatMap(Observable::fromFuture);
+        return dto
+                .takeWhile(arr -> arr.length != 0)
+                .flatMap(Observable::fromArray)
+                .map(this::createTrack);
     }
 
-    private Iterable<Track> getTracks(String artistMbid) {
-        Iterable<String> id = map(getAlbums(artistMbid), Album::getMbid);
-        id = filter(id, Objects::nonNull);
-        Iterable<Iterable<Track>> tracks = map(id, this::getAlbumTracks);
-        return flatMap(tracks, it -> it);
+    private Observable<Track> getTracks(String artistMbid) {
+        Stream<Observable<Album>> albums = Stream.of(getAlbums(artistMbid));
+        Observable<Album> cache = Observable
+                .fromIterable(albums::iterator)
+                .flatMap(Observable::cache);
+        Observable<String> id = cache
+                .map(Album::getMbid)
+                .filter(Objects::nonNull);
+        return id
+                .map(this::getAlbumTracks)
+                .flatMap(Functions.identity());
+    }
+
+    public Observable<TrackRank> getTopTracks(String country){
+        Stream<CompletableFuture<TrackRankDto[]>> cf = Stream
+                .iterate(1, n -> n + 1)
+                .map(nr -> api.getTopTracks(country, nr));
+        Observable<TrackRankDto[]> obs = Observable
+                .fromIterable(cf::iterator)
+                .flatMap(Observable::fromFuture);
+        Observable<TrackRankDto> dto = obs
+                .takeWhile(arr -> arr.length != 0)
+                .flatMap(Observable::fromArray);
+        return dto
+                .map(e -> {
+                    AtomicInteger rankNumber = new AtomicInteger(1);
+                    return createTrackRank(e, rankNumber);
+                });
+    }
+
+    public Observable<TrackRank> getTracksRank(String artistMbId, String country){
+        Observable<Track> artistTracks = getTracks(artistMbId);
+        Observable<TrackRank> countryTracks = getTopTracks(country).take(100);
+        Observable<TrackRank> merge = artistTracks
+            .zipWith(countryTracks, (a, c) -> {
+                if (a.getName().equals(c.getName()))
+                    return new TrackRank(a.getName(), a.getUrl(), a.getDuration(), c.getRank());
+                else
+                    return new TrackRank("", "", 0, 0);
+            });
+        return merge;
+    }
+
+    private TrackRank createTrackRank(TrackRankDto dto, AtomicInteger nr) {
+        return new TrackRank(
+                dto.getName(),
+                dto.getUrl(),
+                dto.getDuration(),
+                nr.getAndIncrement()
+        );
     }
 
     private Artist createArtist(ArtistDto dto) {
-        Iterable<Album> al = () -> getAlbums(dto.getMbid()).iterator();
-        Iterable<Track> tra = () -> getTracks(dto.getMbid()).iterator();
+        Function<String, Observable<TrackRank>> tr = c -> getTracksRank(dto.getMbid(), c);
         return new Artist(
                 dto.getName(),
                 dto.getListeners(),
                 dto.getMbid(),
                 dto.getUrl(),
                 dto.getImage()[0].getText(),
-                al,
-                tra
+                getAlbums(dto.getMbid()),
+                getTracks(dto.getMbid()),
+                tr
         );
     }
 
-    private Album createAlbuns(AlbumDto dto) {
-        Iterable<Track> tra = () -> getAlbumTracks(dto.getMbid()).iterator();
+    private Album createAlbums(AlbumDto dto) {
         return new Album(
                 dto.getName(),
                 dto.getPlaycount(),
                 dto.getMbid(),
                 dto.getUrl(),
                 dto.getImage()[0].getText(),
-                tra
+                getAlbumTracks(dto.getMbid())
         );
     }
 

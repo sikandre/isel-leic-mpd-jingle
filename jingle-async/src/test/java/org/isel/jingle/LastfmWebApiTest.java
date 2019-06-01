@@ -33,6 +33,7 @@ package org.isel.jingle;
 import org.isel.jingle.dto.AlbumDto;
 import org.isel.jingle.dto.ArtistDto;
 import org.isel.jingle.dto.TrackDto;
+import org.isel.jingle.dto.TrackRankDto;
 import org.isel.jingle.util.*;
 import org.junit.Test;
 
@@ -41,10 +42,11 @@ import java.util.concurrent.CompletableFuture;
 import static junit.framework.Assert.assertEquals;
 
 
+
 public class LastfmWebApiTest {
     @Test
     public void searchForArtistsNamedDavid(){
-        AsyncRequest req = new AsyncBaseRequest();
+        AsyncRequest req = new BaseRequestAsync(HttpRequestAsync::openStreamAsync);
         LastfmWebApi api = new LastfmWebApi(req);
         CompletableFuture<ArtistDto[]> cf = api.searchArtist("david", 1);
         ArtistDto[] join = cf.join();
@@ -54,7 +56,7 @@ public class LastfmWebApiTest {
 
     @Test
     public void getTopAlbumsFromMuse(){
-        AsyncRequest req = new AsyncBaseRequest();
+        AsyncRequest req = new BaseRequestAsync(HttpRequestAsync::openStreamAsync);
         LastfmWebApi api = new LastfmWebApi(req);
         CompletableFuture<ArtistDto[]> artist = api.searchArtist("muse", 1);
         String mbid = artist.join()[0].getMbid();
@@ -63,12 +65,20 @@ public class LastfmWebApiTest {
     }
     @Test
     public void getStarlightFromBlackHolesAlbumOfMuse(){
-        AsyncRequest req = new AsyncBaseRequest();
+        AsyncRequest req = new BaseRequestAsync(HttpRequestAsync::openStreamAsync);
         LastfmWebApi api = new LastfmWebApi(req);
         CompletableFuture<ArtistDto[]> artists = api.searchArtist("muse", 1);
         String mbid = artists.join()[0].getMbid();
         AlbumDto album = api.getAlbums(mbid, 1).join()[0];
         TrackDto track = api.getAlbumInfo(album.getMbid()).join()[1];
         assertEquals("Starlight", track.getName());
+    }
+
+    @Test
+    public void getTopTracksFromPortugal(){
+        AsyncRequest req = new BaseRequestAsync(HttpRequestAsync::openStreamAsync);
+        LastfmWebApi api = new LastfmWebApi(req);
+        TrackRankDto[] topTracks = api.getTopTracks("Portugal", 1).join();
+        assertEquals(50, topTracks.length);
     }
 }

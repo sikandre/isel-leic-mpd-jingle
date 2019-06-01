@@ -42,7 +42,6 @@ import static java.lang.System.out;
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertEquals;
 import static org.isel.jingle.util.queries.LazyQueries.*;
-import static org.isel.jingle.util.queries.LazyQueries.toArray;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
