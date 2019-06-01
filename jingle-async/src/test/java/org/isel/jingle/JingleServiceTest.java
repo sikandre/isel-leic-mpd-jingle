@@ -57,7 +57,7 @@ public class JingleServiceTest {
         }
     }
 
-    @Test
+    /*@Test
     public void searchHiperAndCountAllResults() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequest(httpGet)));
@@ -125,5 +125,5 @@ public class JingleServiceTest {
         Iterable<Track> tracks = limit(first(service.searchArtist("muse")).get().getTracks(), 500);
         assertEquals(500, count(tracks));
         assertEquals(80, httpGet.count); // Each page has 50 albums => 50 requests to get their tracks. Some albums have no tracks.
-    }
+    }*/
 }

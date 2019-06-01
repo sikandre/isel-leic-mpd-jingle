@@ -31,8 +31,12 @@
 package org.isel.jingle;
 
 import com.google.gson.Gson;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Dsl;
+import org.isel.jingle.util.AsyncRequest;
 import org.isel.jingle.dto.*;
-import org.isel.jingle.util.Request;
+
+import java.util.concurrent.CompletableFuture;
 
 public class LastfmWebApi {
     private static final String LASTFM_API_KEY = "55394a24c02f82f0b62712b219374964";
@@ -48,44 +52,50 @@ public class LastfmWebApi {
     private static final String LASTFM_GET_ALBUM_INFO = LASTFM_HOST
                                                     + "?method=album.getinfo&format=json&mbid=%s&api_key="
                                                     + LASTFM_API_KEY;
-    private final Request request;
-    protected final Gson gson;
 
-    public LastfmWebApi(Request request) {
-        this(request, new Gson());
+    private final Gson gson;
+    private final AsyncRequest request;
+
+    public LastfmWebApi(AsyncRequest request) {
+        this.request = request;
+        this.gson = new Gson();
     }
 
-    public LastfmWebApi(Request request, Gson gson) {
+    public LastfmWebApi(AsyncRequest request, Gson gson) {
         this.request = request;
         this.gson = gson;
     }
 
-    public ArtistDto[] searchArtist(String name, int page) {
-        String body = getBody(LASTFM_SEARCH, name, page);
-        SearchDto dto = gson.fromJson(body, SearchDto.class);
-        ArtistDto[] artistDtos = dto.getResults().getArtistMatchDto().getArtist();
-        return artistDtos;
+
+    public CompletableFuture<ArtistDto[]> searchArtist(String name, int page) {
+        String path = String.format(LASTFM_SEARCH, name, page);
+        CompletableFuture<String> src = request.getLines(path);
+        CompletableFuture<ArtistDto[]> cfs = src.thenApply(body -> {
+            SearchDto dto = gson.fromJson(body, SearchDto.class);
+            return dto.getResults().getArtistMatchDto().getArtist();
+        });
+        return cfs;
     }
 
-    public AlbumDto[] getAlbums(String artistMbid, int page) {
-        String body = getBody(LASTFM_GET_ALBUMS, artistMbid, page);
-        SearchDto dto = gson.fromJson(body, SearchDto.class);
-        AlbumDto[] albums = dto.getTopalbums().getAlbum();
-        return albums;
+    public CompletableFuture<AlbumDto[]> getAlbums(String artistMbid, int page) {
+        String path = String.format(LASTFM_GET_ALBUMS, artistMbid, page);
+        CompletableFuture<String> src = request.getLines(path);
+        CompletableFuture<AlbumDto[]> cfs = src.thenApply(body -> {
+            SearchDto dto = gson.fromJson(body, SearchDto.class);
+            dto.getTopalbums().getAlbum();
+            return dto.getTopalbums().getAlbum();
+        });
+        return cfs;
     }
 
-    public TrackDto[] getAlbumInfo(String albumMbid){
+    public CompletableFuture<TrackDto[]> getAlbumInfo(String albumMbid){
         String path = String.format(LASTFM_GET_ALBUM_INFO, albumMbid);
-        Iterable<String> src = request.getLines(path);
-        String body = String.join("", src);
-        ResultAlbumDto dto = gson.fromJson(body, ResultAlbumDto.class);
-
-        return dto.getAlbum().getTracks().getTrack();
+        CompletableFuture<String> src = request.getLines(path);
+        CompletableFuture<TrackDto[]> cfs = src.thenApply(body -> {
+            ResultAlbumDto dto = gson.fromJson(body, ResultAlbumDto.class);
+            return dto.getAlbum().getTracks().getTrack();
+        });
+        return cfs;
     }
 
-    private String getBody(String host, String name, int page) {
-        String path = String.format(host, name, page);
-        Iterable<String> src = request.getLines(path);
-        return String.join("", src);
-    }
 }

@@ -30,17 +30,21 @@
 
 package org.isel.jingle;
 
+import io.reactivex.Observable;
 import org.isel.jingle.dto.AlbumDto;
 import org.isel.jingle.dto.ArtistDto;
 import org.isel.jingle.dto.TrackDto;
 import org.isel.jingle.model.Album;
 import org.isel.jingle.model.Artist;
 import org.isel.jingle.model.Track;
+import org.isel.jingle.util.AsyncBaseRequest;
 import org.isel.jingle.util.queries.LazyQueries;
 import org.isel.jingle.util.BaseRequest;
 import org.isel.jingle.util.HttpRequest;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import static org.isel.jingle.util.queries.LazyQueries.*;
 
@@ -53,16 +57,30 @@ public class JingleService {
     }
 
     public JingleService() {
-        this(new LastfmWebApi(new BaseRequest(HttpRequest::openStream)));
+        this(new LastfmWebApi(new AsyncBaseRequest()));
     }
 
 
-    public Iterable<Artist> searchArtist(String name) {
-        Iterable<Integer> pageNr = iterate(1, n -> n + 1);
+    public Observable<Artist> searchArtist(String name) {
+        Stream<CompletableFuture<ArtistDto[]>> cf = Stream
+                .iterate(0, n -> n + 1)
+                .map(nr -> api.searchArtist(name, nr));
+
+        Observable<ArtistDto[]> dto = Observable
+                .fromIterable(cf::iterator)
+                .flatMap(Observable::fromFuture);
+
+        Observable<ArtistDto> artist = dto
+                .takeWhile(arr -> arr.length != 0)
+                .flatMap(Observable::fromArray)
+                .map(this::createArtist);
+
+
+        /*Iterable<Integer> pageNr = iterate(1, n -> n + 1);
         Iterable<ArtistDto[]> map = map(pageNr, nr -> api.searchArtist(name, nr));
         map = takeWhile(map, arr -> arr.length!=0);
         Iterable<ArtistDto> dtos = flatMap(map, LazyQueries::from);
-        return map(dtos, this::createArtist);
+        return map(dtos, this::createArtist);*/
     }
 
     public Iterable<Album> getAlbums(String artistMbid) {

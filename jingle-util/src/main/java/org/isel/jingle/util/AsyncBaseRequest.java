@@ -28,47 +28,33 @@
  *
  */
 
-package org.isel.jingle;
+package org.isel.jingle.util;
 
-import org.isel.jingle.dto.AlbumDto;
-import org.isel.jingle.dto.ArtistDto;
-import org.isel.jingle.dto.TrackDto;
-import org.isel.jingle.util.*;
-import org.junit.Test;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Dsl;
+import org.asynchttpclient.Response;
+import org.isel.jingle.util.iterators.IteratorInputStream;
 
+import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-import static junit.framework.Assert.assertEquals;
+public class AsyncBaseRequest implements AsyncRequest {
 
+    private final AsyncHttpClient ahc = Dsl.asyncHttpClient();
 
-public class LastfmWebApiTest {
-    @Test
-    public void searchForArtistsNamedDavid(){
-        AsyncRequest req = new AsyncBaseRequest();
-        LastfmWebApi api = new LastfmWebApi(req);
-        CompletableFuture<ArtistDto[]> cf = api.searchArtist("david", 1);
-        ArtistDto[] join = cf.join();
-        String name = join[0].getName();
-        assertEquals("David Bowie", name);
+    @Override
+    public CompletableFuture<String> getLines(String path) {
+        return ahc
+                .prepareGet(path)
+                .execute()
+                .toCompletableFuture()
+                .thenApply(Response::getResponseBody);
     }
 
-    @Test
-    public void getTopAlbumsFromMuse(){
-        AsyncRequest req = new AsyncBaseRequest();
-        LastfmWebApi api = new LastfmWebApi(req);
-        CompletableFuture<ArtistDto[]> artist = api.searchArtist("muse", 1);
-        String mbid = artist.join()[0].getMbid();
-        CompletableFuture<AlbumDto[]> albums = api.getAlbums(mbid, 1);
-        assertEquals("Black Holes and Revelations", albums.join()[0].getName());
-    }
-    @Test
-    public void getStarlightFromBlackHolesAlbumOfMuse(){
-        AsyncRequest req = new AsyncBaseRequest();
-        LastfmWebApi api = new LastfmWebApi(req);
-        CompletableFuture<ArtistDto[]> artists = api.searchArtist("muse", 1);
-        String mbid = artists.join()[0].getMbid();
-        AlbumDto album = api.getAlbums(mbid, 1).join()[0];
-        TrackDto track = api.getAlbumInfo(album.getMbid()).join()[1];
-        assertEquals("Starlight", track.getName());
+    @Override
+    public void close() throws Exception {
+        ahc.close();
     }
 }
