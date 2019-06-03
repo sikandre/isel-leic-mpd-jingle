@@ -31,9 +31,6 @@ public class JingleService {
         this(new LastfmWebApi(new BaseRequestAsync(HttpRequestAsync::openStreamAsync)));
     }
 
-
-
-
     public Observable<Artist> searchArtist(String name) {
         Stream<CompletableFuture<ArtistDto[]>> cf = Stream
                 .iterate(1, n -> n + 1)
