@@ -112,7 +112,6 @@ public class JingleServiceTest {
         assertEquals(1, httpGet.count);
         Track track = tracks.skip(42).blockingFirst();// + 1 to getAlbums + 4 to get tracks of first 4 albums.
         assertEquals("MK Ultra", track.getName());
-        //TODO 1281 pedidos à bruta
         assertEquals(10, httpGet.count);
     }
 

@@ -2,6 +2,7 @@ package org.isel.jingle.View;
 
 import htmlflow.StaticHtml;
 import io.vertx.core.http.HttpServerResponse;
+import org.xmlet.htmlapifaster.EnumTypeInputType;
 
 public class IndexView implements View{
     @Override
@@ -11,19 +12,24 @@ public class IndexView implements View{
 
     @Override
     public void write(HttpServerResponse resp) {
-        /*String html = StaticHtml.view()
+        String html = StaticHtml
+                .view()
                 .html()
-                    .body()
-                        .h1()
-                            .input()
-                        .__() // h1
-                    .__() // body
-                .__() // html
+                .head()
+                .title().text("HtmlFlow").__()
+                .__() //head
+                .body()
+                .div().attrClass("container")
+                .h1().text("MPD Index").__()
+                .img().attrSrc("https://avatars0.githubusercontent.com/u/1398561?s=200&v=4").__()
+                .__()
+                .__() //body
+                .__() //html
                 .render();
 
         resp.putHeader("content-type", "text/html");
         // write to the response and end it
-        resp.end(html);*/
+        resp.end(html);
 
     }
 }

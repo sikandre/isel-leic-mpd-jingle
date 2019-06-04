@@ -54,7 +54,7 @@ public class JingleService {
         return dto
                 .takeWhile(arr -> arr.length != 0)
                 .flatMap(Observable::fromArray)
-                .filter(s -> s.getMbid()!= null)
+                //.filter(s -> s.getMbid()== null)
                 .map(this::createAlbums);
     }
 
@@ -68,7 +68,9 @@ public class JingleService {
     }
 
     private Observable<Track> getTracks(String artistMbid) {
-        return getAlbums(artistMbid).flatMap(s -> getAlbumTracks(s.getMbid()));
+        return getAlbums(artistMbid)
+                .filter(s -> s.getMbid()!= null)
+                .flatMap(s -> getAlbumTracks(s.getMbid()));
     }
 
     public Observable<TrackRank> getTopTracks(String country){
