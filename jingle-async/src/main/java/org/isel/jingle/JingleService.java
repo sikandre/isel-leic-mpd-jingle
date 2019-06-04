@@ -54,14 +54,13 @@ public class JingleService {
         return dto
                 .takeWhile(arr -> arr.length != 0)
                 .flatMap(Observable::fromArray)
+                .filter(s -> s.getMbid()!= null)
                 .map(this::createAlbums);
     }
 
     private Observable<Track> getAlbumTracks(String albumMbid) {
-        Stream<CompletableFuture<TrackDto[]>> cf = Stream.of(api.getAlbumInfo(albumMbid));
-        Observable<TrackDto[]> dto = Observable
-                .fromIterable(cf::iterator)
-                .flatMap(Observable::fromFuture);
+        CompletableFuture<TrackDto[]> cf = api.getAlbumInfo(albumMbid);
+        Observable<TrackDto[]> dto = Observable.fromFuture(cf);
         return dto
                 .takeWhile(arr -> arr.length != 0)
                 .flatMap(Observable::fromArray)
@@ -69,16 +68,7 @@ public class JingleService {
     }
 
     private Observable<Track> getTracks(String artistMbid) {
-        Stream<Observable<Album>> albums = Stream.of(getAlbums(artistMbid));
-        Observable<Album> cache = Observable
-                .fromIterable(albums::iterator)
-                .flatMap(Observable::cache);
-        Observable<String> id = cache
-                .map(Album::getMbid)
-                .filter(Objects::nonNull);
-        return id
-                .map(this::getAlbumTracks)
-                .flatMap(Functions.identity());
+        return getAlbums(artistMbid).flatMap(s -> getAlbumTracks(s.getMbid()));
     }
 
     public Observable<TrackRank> getTopTracks(String country){

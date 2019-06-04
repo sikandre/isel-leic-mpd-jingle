@@ -78,7 +78,6 @@ public class LastfmWebApi {
         CompletableFuture<String> src = request.getLines(path);
         CompletableFuture<AlbumDto[]> cfs = src.thenApply(body -> {
             SearchDto dto = gson.fromJson(body, SearchDto.class);
-            dto.getTopalbums().getAlbum();
             return dto.getTopalbums().getAlbum();
         });
         return cfs;
