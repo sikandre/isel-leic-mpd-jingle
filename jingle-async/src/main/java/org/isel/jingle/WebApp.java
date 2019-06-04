@@ -1,25 +1,39 @@
 package org.isel.jingle;
 
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import org.isel.jingle.Controller.AlbumListController;
 import org.isel.jingle.Controller.AlbumTracksListController;
 import org.isel.jingle.Controller.ArtistListController;
 import org.isel.jingle.Controller.ArtistTracksListController;
-import org.isel.jingle.model.Artist;
 
 public class WebApp {
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx();
-
-        HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
+        HttpServer server = vertx.createHttpServer();
+
+        //router.route().handler(start());
+        //new start se der tempo
+
         new ArtistListController(router);
-        new AlbumListController(router);
+        /*new AlbumListController(router);
         new ArtistTracksListController(router);
-        new AlbumTracksListController(router);
+        new AlbumTracksListController(router);*/
 
         server.requestHandler(router).listen(3000);
+    }
+
+    private static Handler<RoutingContext> start() {
+        return routingContext -> {
+            HttpServerResponse response = routingContext.response();
+            response.putHeader("content-type", "text/html");
+            response.end("ah ah ah Start");
+        };
     }
 }
