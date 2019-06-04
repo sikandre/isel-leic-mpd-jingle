@@ -7,10 +7,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import org.isel.jingle.Controller.AlbumListController;
-import org.isel.jingle.Controller.AlbumTracksListController;
-import org.isel.jingle.Controller.ArtistListController;
-import org.isel.jingle.Controller.ArtistTracksListController;
+import org.isel.jingle.Controller.*;
 
 public class WebApp {
     public static void main(String[] args) {
@@ -19,7 +16,7 @@ public class WebApp {
         HttpServer server = vertx.createHttpServer();
 
         //router.route().handler(start());
-        //new start se der tempo
+        new IndexHandler(router);
 
         new ArtistListController(router);
         /*new AlbumListController(router);

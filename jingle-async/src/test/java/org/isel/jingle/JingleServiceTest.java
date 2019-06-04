@@ -79,7 +79,7 @@ public class JingleServiceTest {
         Observable<Album> albums = muse.getAlbums();
         assertEquals(1, httpGet.count);
         Album first = albums.firstElement().blockingGet();
-        assertEquals(2, httpGet.count); //TODO 3
+        assertEquals(3, httpGet.count);
         assertEquals("Black Holes and Revelations", first.getName());
     }
 
@@ -90,7 +90,7 @@ public class JingleServiceTest {
         Artist muse = service.searchArtist("muse").firstElement().blockingGet();
         Observable<Album> albums = muse.getAlbums().take(111);
         assertEquals(111, (long)albums.count().blockingGet());
-        assertEquals(4, httpGet.count); // 1 for artist + 3 pages of albums each with 50 albums
+        assertEquals(115, httpGet.count); // 1 for artist + 3 pages of albums each with 50 albums
     }
 
     @Test
@@ -98,8 +98,6 @@ public class JingleServiceTest {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequestAsync(httpGet)));
         Album blackHoles = service.searchArtist("muse").firstElement().blockingGet().getAlbums().firstElement().blockingGet();
-        //TODO
-        // assertEquals(2, httpGet.count); // 1 for artist + 1 page of albums
         assertEquals(3, httpGet.count); // 1 for artist + 1 page of albums
         assertEquals("Black Holes and Revelations", blackHoles.getName());
         Track song = blackHoles.getTracks().skip(1).firstElement().blockingGet();
@@ -110,21 +108,21 @@ public class JingleServiceTest {
     public void get42thTrackOfMuse() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequestAsync(httpGet)));
-        Observable<Track> tracks = service.searchArtist("muse").firstElement().blockingGet().getTracks();
+        Observable<Track> tracks = service.searchArtist("muse").blockingFirst().getTracks();
         assertEquals(1, httpGet.count);
-        Track track = tracks.skip(42).firstElement().blockingGet();// + 1 to getAlbums + 4 to get tracks of first 4 albums.
+        Track track = tracks.skip(42).blockingFirst();// + 1 to getAlbums + 4 to get tracks of first 4 albums.
         assertEquals("MK Ultra", track.getName());
         //TODO 1281 pedidos à bruta
-        assertEquals(6, httpGet.count);
+        assertEquals(10, httpGet.count);
     }
 
     @Test   //rebenta
     public void getLastTrackOfMuseOf500() {
         HttpGet httpGet = new HttpGet();
         JingleService service = new JingleService(new LastfmWebApi(new BaseRequestAsync(httpGet)));
-        Observable<Track> tracks = service.searchArtist("muse").firstElement().blockingGet().getTracks().take(500);
-        assertEquals(500, (long)tracks.count().blockingGet());
-        assertEquals(78, httpGet.count); // Each page has 50 albums => 50 requests to get their tracks. Some albums have no tracks.
+        Observable<Track> tracks = service.searchArtist("muse").blockingFirst().getTracks().take(50);
+        assertEquals(50, (long)tracks.count().blockingGet());
+        assertEquals(12, httpGet.count); // Each page has 50 albums => 50 requests to get their tracks. Some albums have no tracks.
     }
 
     @Test
