@@ -20,7 +20,7 @@ public class AlbumView implements View<Observable<Album>>{
     @Override
     public void write(HttpServerResponse resp, Observable<Album> model) {
         resp.setChunked(true);
-        resp.putHeader("content type","text/html");
+        resp.putHeader("Content-Type", "text/html");
         model.subscribeWith(new Observer<Album>(){
             Tbody<Table<Body<Html<HtmlView>>>> tbody;
             @Override
@@ -65,7 +65,7 @@ public class AlbumView implements View<Observable<Album>>{
                     .__()//head
                     .body()
                         .h1()
-                            .text("")
+                            .text("Album List")
                         .__()//h1
                     .table()
                         .thead()
@@ -100,8 +100,11 @@ public class AlbumView implements View<Observable<Album>>{
                         .text(album.getImage())
                     .__()
                     .td()
-                        .text(album.getTracks())
-                    .__();
+                        .a()
+                        .attrHref("/artists/"+album.getMbid()+"/tracks")
+                        .text("Tracks")
+                        .__()
+                .__();
     }
     
     private static class ResponsePrintStream extends PrintStream {

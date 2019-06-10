@@ -23,16 +23,9 @@ public class ArtistListController implements AutoCloseable{
     private void artistHandler(RoutingContext ctx) {
         JingleService jingleService = new JingleService();
         String name = ctx.request().getParam("name");
-        Observable<Artist> artists = jingleService.searchArtist(name);
-        Artist artist = artists.firstElement().blockingGet();
-        view.write(ctx.response(),artist);
-        new AlbumListController(router,artist.getMbid());
+        Observable<Artist> artists = jingleService.searchArtist(name).take(100);
+        view.write(ctx.response(),artists);
         ctx.response().end();
-        /*
-        HttpServerResponse response = ctx.response();
-        response.putHeader("content-type", "text/html");
-        response.end("artist");
-        */
     }
     
     @Override

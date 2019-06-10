@@ -3,6 +3,7 @@ package org.isel.jingle.View;
 import htmlflow.StaticHtml;
 import io.vertx.core.http.HttpServerResponse;
 import org.xmlet.htmlapifaster.EnumTypeInputType;
+import org.xmlet.htmlapifaster.EnumTypeSimpleContentType;
 
 public class IndexView implements View{
     @Override
@@ -19,6 +20,10 @@ public class IndexView implements View{
                 .title().text("HtmlFlow").__()
                 .__() //head
                 .body()
+                .a()
+                    .attrHref("/artists")
+                    .text("artist")
+                .__()
                 .div().attrClass("container")
                 .h1().text("MPD Index").__()
                 .img().attrSrc("https://avatars0.githubusercontent.com/u/1398561?s=200&v=4").__()

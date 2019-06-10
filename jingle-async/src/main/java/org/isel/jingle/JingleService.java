@@ -3,6 +3,7 @@ package org.isel.jingle;
 
 import io.reactivex.Observable;
 import io.reactivex.internal.functions.Functions;
+import io.vertx.core.Handler;
 import org.isel.jingle.dto.AlbumDto;
 import org.isel.jingle.dto.ArtistDto;
 import org.isel.jingle.dto.TrackDto;
@@ -54,7 +55,6 @@ public class JingleService {
         return dto
                 .takeWhile(arr -> arr.length != 0)
                 .flatMap(Observable::fromArray)
-                //.filter(s -> s.getMbid()== null)
                 .map(this::createAlbums);
     }
 
@@ -113,7 +113,6 @@ public class JingleService {
     }
 
     private Artist createArtist(ArtistDto dto) {
-        Function<String, Observable<TrackRank>> tr = c -> getTracksRank(dto.getMbid(), c);
         return new Artist(
                 dto.getName(),
                 dto.getListeners(),
@@ -122,7 +121,7 @@ public class JingleService {
                 dto.getImage()[0].getText(),
                 getAlbums(dto.getMbid()),
                 getTracks(dto.getMbid()),
-                tr
+                c -> getTracksRank(dto.getMbid(), c)
         );
     }
 
