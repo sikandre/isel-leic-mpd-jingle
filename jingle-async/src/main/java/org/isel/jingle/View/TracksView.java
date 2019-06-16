@@ -63,9 +63,11 @@ public class TracksView implements View<Observable<Track>>{
                     .__()//head
                     .body()
                         .h1()
+                            .attrStyle("text-align: center;")
                             .text("Track List")
                         .__()//h1
                     .table()
+                        .addAttr("align", "center")
                         .thead()
                             .tr()
                                 .th().text("Name").__()
@@ -83,7 +85,10 @@ public class TracksView implements View<Observable<Track>>{
                         .text(track.getName())
                     .__()
                     .td()
-                        .text(track.getUrl())
+                        .a()
+                        .attrHref(track.getUrl())
+                        .text("Details")
+                        .__()
                     .__()
                     .td()
                         .text(track.getDuration())

@@ -6,6 +6,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.http.HttpServerResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.isel.jingle.model.Artist;
 import org.xmlet.htmlapifaster.*;
 
@@ -58,12 +59,15 @@ public class ArtistView implements View<Observable<Artist>> {
                 .__()// head
                 .body()
                 .h1()
-                .text("Artists List")
+                .attrStyle("text-align: center;")
+                .text("Artist List")
                 .__()// h1
                 .table()
+                .addAttr("align", "center")
                 .thead()
                 .tr()
                 .th().text("Name").__()
+                .th().text("MBid").__()
                 .th().text("Picture").__()
                 .th().text("URL").__()
                 .th().text("Abums").__()
@@ -79,6 +83,8 @@ public class ArtistView implements View<Observable<Artist>> {
                 .td()
                     .style().text("tr:nth-child(even) {background-color: #f2f2f2;}").__()
                     .text(artist.getName())
+                .__().td()
+                    .text(artist.getMbid())
                 .__()
                 .td()
                     .img().attrSrc(artist.getImage()).__()
@@ -90,11 +96,11 @@ public class ArtistView implements View<Observable<Artist>> {
                 .td()
                     .a()
                         .attrHref("/artists/"+artist.getMbid()+"/albums")
-                        .text(artist.getMbid()==null ? "" : "Albums")
+                        .text(!StringUtils.isNotEmpty(artist.getMbid()) ? "" : "Albums")
                 .td()
                     .a()
                         .attrHref("/artists/"+artist.getMbid()+"/tracks")
-                        .text(artist.getMbid()==null ? "" : "Tracks")
+                        .text(!StringUtils.isNotEmpty(artist.getMbid()) ? "" : "Tracks")
                 .__()
         ;
     }
