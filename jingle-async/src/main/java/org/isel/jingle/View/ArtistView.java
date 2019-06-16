@@ -67,6 +67,7 @@ public class ArtistView implements View<Observable<Artist>> {
                 .th().text("Picture").__()
                 .th().text("URL").__()
                 .th().text("Abums").__()
+                .th().text("Tracks").__()
                 .__()
                 .__()
                 .tbody();
@@ -90,7 +91,12 @@ public class ArtistView implements View<Observable<Artist>> {
                     .a()
                         .attrHref("/artists/"+artist.getMbid()+"/albums")
                         .text(artist.getMbid()==null ? "" : "Albums")
-                .__(); // td
+                .td()
+                    .a()
+                        .attrHref("/artists/"+artist.getMbid()+"/tracks")
+                        .text(artist.getMbid()==null ? "" : "Tracks")
+                .__()
+        ;
     }
 
     private static class ResponsePrintStream extends PrintStream {

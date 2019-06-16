@@ -18,7 +18,7 @@ public class AlbumListController implements AutoCloseable {
     }
 
 
-    public void albumListHandler(RoutingContext ctx) {
+    private void albumListHandler(RoutingContext ctx) {
         JingleService jingleService = new JingleService();
         String mbId = ctx.request().getParam("id");
         Observable<Album> albums = jingleService.getAlbums(mbId).take(100);

@@ -54,7 +54,7 @@ public class JingleService {
                 .map(this::createAlbums);
     }
 
-    private Observable<Track> getAlbumTracks(String albumMbid) {
+    public Observable<Track> getAlbumTracks(String albumMbid) {
         CompletableFuture<TrackDto[]> cf = api.getAlbumInfo(albumMbid);
         Observable<TrackDto[]> dto = Observable.fromFuture(cf);
         return dto
@@ -63,7 +63,7 @@ public class JingleService {
                 .map(this::createTrack);
     }
 
-    private Observable<Track> getTracks(String artistMbid) {
+    public Observable<Track> getTracks(String artistMbid) {
         return getAlbums(artistMbid)
                 .filter(s -> s.getMbid()!= null)
                 .flatMap(s -> getAlbumTracks(s.getMbid()));
