@@ -2,8 +2,6 @@
 package org.isel.jingle;
 
 import io.reactivex.Observable;
-import io.reactivex.internal.functions.Functions;
-import io.vertx.core.Handler;
 import org.isel.jingle.dto.AlbumDto;
 import org.isel.jingle.dto.ArtistDto;
 import org.isel.jingle.dto.TrackDto;
@@ -15,10 +13,8 @@ import org.isel.jingle.model.TrackRank;
 import org.isel.jingle.util.BaseRequestAsync;
 import org.isel.jingle.util.HttpRequestAsync;
 
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class JingleService {

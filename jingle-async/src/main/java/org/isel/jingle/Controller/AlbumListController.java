@@ -1,14 +1,11 @@
 package org.isel.jingle.Controller;
 
 import io.reactivex.Observable;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import org.isel.jingle.JingleService;
 import org.isel.jingle.View.AlbumView;
 import org.isel.jingle.model.Album;
-import org.isel.jingle.model.Artist;
 
 public class AlbumListController implements AutoCloseable {
     

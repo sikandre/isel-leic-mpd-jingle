@@ -15,11 +15,13 @@ import org.xmlet.htmlapifaster.Tbody;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.List;
 
 public class AlbumView implements View<Observable<Album>>{
     @Override
     public void write(HttpServerResponse resp, Observable<Album> model) {
         resp.setChunked(true);
+        //List<Album> a = model.take(10).toList().blockingGet();
         resp.putHeader("Content-Type", "text/html");
         model.subscribeWith(new Observer<Album>(){
             Tbody<Table<Body<Html<HtmlView>>>> tbody;
@@ -84,25 +86,25 @@ public class AlbumView implements View<Observable<Album>>{
     private static void writeTableRow(Tbody<Table<Body<Html<HtmlView>>>> tbody, Album album) {
         tbody
                 .tr()
-                    .td()
+                    .td().style().text("tr:nth-child(even) {background-color: #f2f2f2;}").__()
                         .text(album.getName())
                     .__()
                     .td()
                         .text(album.getPlaycount())
                     .__()
                     .td()
-                        .text(album.getMbid())
+                        .text(album.getMbid()==null ? "" : album.getMbid())
                     .__()
                     .td()
                         .text(album.getUrl())
                     .__()
                     .td()
-                        .text(album.getImage())
+                        .img().attrSrc(album.getImage()).__()
                     .__()
                     .td()
                         .a()
                         .attrHref("/artists/"+album.getMbid()+"/tracks")
-                        .text("Tracks")
+                        .text(album.getMbid()==null ? "" : "Tracks")
                         .__()
                 .__();
     }

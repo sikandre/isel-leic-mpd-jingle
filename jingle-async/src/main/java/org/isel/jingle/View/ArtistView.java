@@ -64,7 +64,8 @@ public class ArtistView implements View<Observable<Artist>> {
                 .thead()
                 .tr()
                 .th().text("Name").__()
-                .th().text("MBid").__()
+                .th().text("Picture").__()
+                .th().text("URL").__()
                 .th().text("Abums").__()
                 .__()
                 .__()
@@ -75,15 +76,20 @@ public class ArtistView implements View<Observable<Artist>> {
         tbody
                 .tr()
                 .td()
-                .text(artist.getName())
-                .__() // td
+                    .style().text("tr:nth-child(even) {background-color: #f2f2f2;}").__()
+                    .text(artist.getName())
+                .__()
                 .td()
-                .text(artist.getMbid())
-                .__() // td
+                    .img().attrSrc(artist.getImage()).__()
+                .__()
                 .td()
-                .a()
-                .attrHref("/artists/"+artist.getMbid()+"/albums")
-                .text("Albums")
+                    .a()
+                        .attrHref(artist.getUrl())
+                        .text("Visit Artist")
+                .td()
+                    .a()
+                        .attrHref("/artists/"+artist.getMbid()+"/albums")
+                        .text(artist.getMbid()==null ? "" : "Albums")
                 .__(); // td
     }
 

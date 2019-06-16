@@ -2,8 +2,8 @@ package org.isel.jingle.View;
 
 import htmlflow.StaticHtml;
 import io.vertx.core.http.HttpServerResponse;
+import org.xmlet.htmlapifaster.EnumMethodType;
 import org.xmlet.htmlapifaster.EnumTypeInputType;
-import org.xmlet.htmlapifaster.EnumTypeSimpleContentType;
 
 public class IndexView implements View{
     @Override
@@ -16,17 +16,22 @@ public class IndexView implements View{
         String html = StaticHtml
                 .view()
                 .html()
-                .head()
-                .title().text("HtmlFlow").__()
+                .head().style().text("body {\n" +
+                        "  text-align: center;\n" +
+                        "}").__()
+                .title().text("E para o 20 caso passe o exame").__()
                 .__() //head
                 .body()
-                .a()
-                    .attrHref("/artists")
-                    .text("artist")
-                .__()
-                .div().attrClass("container")
-                .h1().text("MPD Index").__()
+                .div()
+                .attrClass("container")
+                .h1().text("Jingle Jingle Balls").__()
                 .img().attrSrc("https://avatars0.githubusercontent.com/u/1398561?s=200&v=4").__()
+                    .form()
+                    .attrAction("/artists")
+                    .attrMethod(EnumMethodType.GET)
+                    .input().attrType(EnumTypeInputType.TEXT).attrName("name").attrPlaceholder("Artist Name").attrRequired(Boolean.TRUE).__()
+                    .input().attrType(EnumTypeInputType.SUBMIT).attrValue("Lets Go").__()
+                    .__()
                 .__()
                 .__() //body
                 .__() //html

@@ -32,9 +32,6 @@ package org.isel.jingle.model;
 
 import io.reactivex.Observable;
 
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
 public class Album {
     private final String name;
     private final int playcount;
