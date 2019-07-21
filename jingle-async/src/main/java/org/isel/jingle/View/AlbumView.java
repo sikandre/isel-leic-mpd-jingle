@@ -21,7 +21,6 @@ public class AlbumView implements View<Observable<Album>>{
     @Override
     public void write(HttpServerResponse resp, Observable<Album> model) {
         resp.setChunked(true);
-        //List<Album> a = model.take(10).toList().blockingGet();
         resp.putHeader("Content-Type", "text/html");
         model.subscribeWith(new Observer<Album>(){
             Tbody<Table<Body<Html<HtmlView>>>> tbody;
@@ -51,7 +50,12 @@ public class AlbumView implements View<Observable<Album>>{
             }
         });
     }
-    
+
+    @Override
+    public void write(HttpServerResponse resp, Observable<Album> model, String name, int page) {
+
+    }
+
     @Override
     public void write(HttpServerResponse resp) {
         throw new UnsupportedOperationException("This view requires a Model. You should invoke write(resp, model) instead!");

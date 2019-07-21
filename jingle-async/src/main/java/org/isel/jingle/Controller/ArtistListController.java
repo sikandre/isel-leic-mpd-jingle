@@ -7,7 +7,7 @@ import org.isel.jingle.JingleService;
 import org.isel.jingle.View.ArtistView;
 import org.isel.jingle.model.Artist;
 
-public class ArtistListController implements AutoCloseable{
+public class ArtistListController {
     final ArtistView view = new ArtistView();
     private Router router;
 
@@ -19,15 +19,12 @@ public class ArtistListController implements AutoCloseable{
     private void artistHandler(RoutingContext ctx) {
         JingleService jingleService = new JingleService();
         String name = ctx.request().getParam("name");
+        int page = Integer.parseInt(ctx.request().getParam("page"));
+        int pageSize = 25;
         Observable<Artist> artists = jingleService.searchArtist(name)
-                //.filter(e -> StringUtils.isNotEmpty(e.getMbid()))
-                .take(100);
-        view.write(ctx.response(),artists);
+                .skip(pageSize*(page-1))
+                .take(pageSize);
+        view.write(ctx.response(),artists,name, page);
         ctx.response().end();
-    }
-    
-    @Override
-    public void close() throws Exception {
-    
     }
 }

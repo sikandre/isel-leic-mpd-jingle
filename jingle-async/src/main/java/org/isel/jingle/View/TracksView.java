@@ -47,7 +47,12 @@ public class TracksView implements View<Observable<Track>>{
             }
         });
     }
-    
+
+    @Override
+    public void write(HttpServerResponse resp, Observable<Track> model, String name, int page) {
+
+    }
+
     @Override
     public void write(HttpServerResponse resp) {
         throw new UnsupportedOperationException("This view requires a Model. You should invoke write(resp, model) instead!");

@@ -8,12 +8,15 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import org.isel.jingle.Controller.*;
 
-public class WebApp {
-    public static void main(String[] args) {
-        Vertx vertx = Vertx.vertx();
-        Router router = Router.router(vertx);
-        HttpServer server = vertx.createHttpServer();
+public class WebApp implements AutoCloseable {
+    private static Vertx vertx;
+    private static Router router;
+    private static HttpServer server;
 
+    public static void main(String[] args) {
+        vertx = Vertx.vertx();
+        router = Router.router(vertx);
+        server = vertx.createHttpServer();
 
         new IndexHandler(router);
         new ArtistListController(router);
@@ -30,5 +33,10 @@ public class WebApp {
             response.putHeader("content-type", "text/html");
             response.end("ah ah ah Start");
         };
+    }
+
+    @Override
+    public void close() throws Exception {
+        server.close();
     }
 }

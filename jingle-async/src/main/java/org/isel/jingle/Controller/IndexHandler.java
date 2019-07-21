@@ -14,7 +14,6 @@ public class IndexHandler {
 
     private void index(RoutingContext ctx) {
         HttpServerResponse response = ctx.response();
-
         view.write(response);
     }
 }

@@ -7,7 +7,7 @@ import org.isel.jingle.JingleService;
 import org.isel.jingle.View.AlbumView;
 import org.isel.jingle.model.Album;
 
-public class AlbumListController implements AutoCloseable {
+public class AlbumListController {
     
     final AlbumView view = new AlbumView();
     private Router router;
@@ -24,11 +24,6 @@ public class AlbumListController implements AutoCloseable {
         Observable<Album> albums = jingleService.getAlbums(mbId).take(100);
         view.write(ctx.response(),albums);
         ctx.response().end();
-
-    }
-
-    @Override
-    public void close() throws Exception {
 
     }
 }
